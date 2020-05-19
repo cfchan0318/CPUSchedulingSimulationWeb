@@ -1,0 +1,34 @@
+
+
+.gantt-container{
+    white-space:nowrap;
+    min-height: 10em;
+    width: 100%;
+    overflow-x: scroll;
+}
+
+.gantt-inner{
+    display: inline-block;
+    
+}
+.gantt-process{
+    text-align: center;
+}
+
+.gantt-name,.gantt-burst{
+    display: inline;
+}
+.gantt-start{
+    float: left;
+    padding: 5px;
+}
+
+.gantt-end{
+    float: right;
+    padding: 5px;
+}
+
+.gantt-bar{
+    height:2em;
+    background-color: red;
+}

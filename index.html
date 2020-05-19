@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="res/css/bootstrap.min.css">
+    
+    <link rel="stylesheet" type="text/css" href="res/css/style.css">
+    <title>qup</title>
+</head>
+
+<body>
+
+
+    <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#">qup:</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav">
+                <li class="nav-item active">
+                  <a class="nav-link" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">Features</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">Pricing</a>
+                </li>
+              </ul>
+            </div>
+          </nav>
+
+        <div class="container-fluid" >
+            <div class="row m-3">
+                <div class="col-lg-4 col-sm-12">
+                    <H6>Create Process</H6>
+                    <div class="form-group row align-items-center">
+                        <div class="col-lg-12 col-sm-12">
+                            <input type="text" class="form-control mb-2" placeholder="Process Name" id="processName">
+                        </div>
+                        <div class="col-lg-12 col-sm-12">
+                            <input type="text" class="form-control mb-2" placeholder="Duration Time (Burst Time)"
+                                id="processDurationTime">
+                        </div>
+                        <div class="col-lg-12 col-sm-12">
+                            <input type="text" class="form-control mb-2" placeholder="Arrival Time"
+                                id="processArrivalTime">
+                        </div>
+                        <div class="col-lg-12 col-sm-12">
+                            <input type="text" class="form-control mb-2" placeholder="Priority (default is 1)"
+                                id="processPriority">
+                        </div>
+                        <div class="col-lg-12 col-sm-4">
+                            <button class="btn btn-primary " id="createProcess">Create Process</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8 col-sm-12">
+                    <H6>Processes</H6>
+                    <div id="processList" style="min-height:200px; max-height: 200px; overflow: scroll;">
+                        <table class="table" id="processList">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Duration</th>
+                                    <th scope="col">Arrival</th>
+                                    <th scope="col">Priority</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-3">
+                <div class="col-lg-12 col-sm-12">
+                    <h6>Mode</h6>
+                    <fieldset class="form-group">
+                        <div class="row">
+
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="gridRadios" id="mode"
+                                        value="fcfs">
+                                    <label class="form-check-label" for="mode">
+                                        First Come First Served (FCFS)
+                                    </label>
+                                </div>
+
+                            </div>
+
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="gridRadios" id="mode" value="rr">
+                                    <label class="form-check-label" for="mode">
+                                        Round Robin (RR)
+                                    </label>
+                                </div>
+
+                            </div>
+
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="gridRadios" id="mode"
+                                        value="sjf">
+                                    <label class="form-check-label" for="mode">
+                                        Shortest Job First
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="gridRadios" id="mode"
+                                        value="srt">
+                                    <label class="form-check-label" for="mode">
+                                        Shortest Remaining Time (SRT)
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="gridRadios" id="mode"
+                                        value="pri-nonpre">
+                                    <label class="form-check-label" for="mode">
+                                        Non-Preemptive Priority Scheduling (Large is low)
+                                    </label>
+                                </div>
+                            </div>
+
+
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="gridRadios" id="mode"
+                                        value="pri-pre">
+                                    <label class="form-check-label" for="mode">
+                                        Preemptive Priority Scheduling (Large is low)
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="gridRadios" id="mode"
+                                        value="pri-nonpre-rev">
+                                    <label class="form-check-label" for="mode">
+                                        Non-Preemptive Priority Scheduling (Large is high)
+                                    </label>
+                                </div>
+                            </div>
+
+
+                            <div class="col-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="gridRadios" id="mode"
+                                        value="pri-pre-rev">
+                                    <label class="form-check-label" for="mode">
+                                        Preemptive Priority Scheduling (Large is high)
+                                    </label>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="col-lg-7 col-sm-12">
+                    <h6>Simulation</h6>
+                    <div class="form-group row align-items-center">
+                        <button class="btn btn-success m-1" id="startSimulation">Start Simulation</button>
+                        <button class="btn btn-warning m-1" id="calculateAll">Calculate All</button>
+                        <button class="btn btn-danger m-1" id="previous">Previous</button>
+                        <button class="btn btn-primary m-1" id="next">Next</button>
+                        The Current Time is: &nbsp;<div id="currentTime"></div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="row m-3">
+                <div class="col-lg-8 col-sm-12">
+                    
+
+                    <h6>Gantt Chart</h6>
+                    <div class="gantt-container m-3">
+
+                        <!---Single Process
+                                <div class="gantt-inner">
+                                    <div class="gantt-process">
+                                        <div class="gantt-name">P1</div>
+                                        <div class="gantt-burst">(24)</div>
+                                    </div>
+                                    <div class="gantt-bar"></div>
+                                    <div class="gantt-time">
+                                        <div class="gantt-start">0</div>
+                                        <div class="gantt-end">12</div>
+                                    </div>
+                                </div>
+                                -->
+                    </div>
+                </div>
+                <div class="col-lg-2 col-sm-6">
+                    <div id="ready_queue">
+                        <h6>Ready Queue</h6>
+                        <div class="readyQueueContainer">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 ">
+                    <h6>Summary</h6>
+                    <div class="row" id="summary"></div>
+                    <p id="summary_totalWaitTime"></p>
+                    <p id="summary_avgWaitTime"></p>
+                    <p id="summary_totalTurnaroundTime"></p>
+                    <p id="summary_avgTurnaroundTime"></p>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+    </script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+    </script>
+
+    <script src="res/js/script.js"></script>
+
+</body>
+
+</html>
