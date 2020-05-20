@@ -1,3 +1,4 @@
+
 Process = [];
 
 /*Process = [{
@@ -52,7 +53,7 @@ Process = [];
 ];
 */
 
-Process = [{
+/*Process = [{
     "processOrder": 1,
     "processName": "P1",
     "processDurationTime": 3,
@@ -128,7 +129,7 @@ Process = [{
     "exitTime": null,
     "color": "#434343",
 },
-];
+];*/
 
 class qup_process {
     constructor(process) {
@@ -1356,6 +1357,45 @@ function updateProcessList() {
     });
 }
 
+function calculateAllTime(process_class) {
+    for (var i = 0; i < process_class.process.length; i++) {
+        process_class.process[i].turnaroundTime = process_class.process[i].exitTime - process_class.process[i].processArrivalTime;
+        process_class.process[i].waitTime = process_class.process[i].turnaroundTime - process_class.process[i].processDurationTime;
+        process_class.totalTurnaroundTime += process_class.process[i].turnaroundTime;
+        process_class.totalWaitTime += process_class.process[i].waitTime;
+    }
+    process_class.avgWaitTime = process_class.totalWaitTime / process_class.process.length;
+    process_class.avgTurnaroundTime = process_class.totalTurnaroundTime / process_class.process.length;
+
+
+}
+
+function createCookie(name, value, days) {
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        var expires = "; expires=" + date.toGMTString();
+    }
+    else var expires = "";
+    document.cookie = name + "=" + value + expires + "; path=/";
+}
+
+function getCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+}
+
+function eraseCookie(name) {
+    createCookie(name, "", -1);
+}
+
+
 //Frontend
 //Interactive buttons
 $(document).ready(function () {
@@ -1435,6 +1475,23 @@ $(document).ready(function () {
             displaySummary(simulation);
         }
     });
+
+    //Save Process to cookie
+    $("#save").click(function () {
+        var json_str = JSON.stringify(Process);
+        createCookie("savedProcess", json_str);
+        alert("Processes You created are saved.");
+    });
+
+    //Load Process to cookie
+    $("#load").click(function () {
+        var json_str = getCookie('savedProcess');
+        Process = JSON.parse(json_str);
+        Process.forEach(element => {
+            addProcessToTable(element);
+        });
+    });
+
 
 
     $("#previous").click(function () {
@@ -1648,20 +1705,6 @@ function sortByPropertyRevese(property) {
 
         return 0;
     }
-}
-
-
-function calculateAllTime(process_class) {
-    for (var i = 0; i < process_class.process.length; i++) {
-        process_class.process[i].turnaroundTime = process_class.process[i].exitTime - process_class.process[i].processArrivalTime;
-        process_class.process[i].waitTime = process_class.process[i].turnaroundTime - process_class.process[i].processDurationTime;
-        process_class.totalTurnaroundTime += process_class.process[i].turnaroundTime;
-        process_class.totalWaitTime += process_class.process[i].waitTime;
-    }
-    process_class.avgWaitTime = process_class.totalWaitTime / process_class.process.length;
-    process_class.avgTurnaroundTime = process_class.totalTurnaroundTime / process_class.process.length;
-
-
 }
 
 
