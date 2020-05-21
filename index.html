@@ -20,25 +20,57 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Home</a>
+                    <a class="nav-link" href="index.html">Simulator</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Features</a>
+                    <a class="nav-link" href="https://forms.gle/J8hNQHdnpNf5LahQ8">Feedback</a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Pricing</a>
+                    <a class="nav-link" href="https://forms.gle/J8hNQHdnpNf5LahQ8">Quiz</a>
                 </li>
             </ul>
         </div>
     </nav>
-    
+
     <div class="container-fluid">
+
+        <div class="container-fluid">
+            <div class="row m-lg-3 m-sm-1">
+                <div class="col-lg-12 col-sm-12">
+                    <h5><span> What is qup: ?</span></h5>
+                    <p>qup simulator is a cpu scheduling simulator focusing on interactive teaching through examples and
+                        videos </p>
+
+                    <H6>What is CPU Sceduling?</H6>
+                    <p>CPU scheduling is a process which allows one process to use the CPU while the execution of
+                        another
+                        process is on hold(in waiting state) due to unavailability of any resource like I/O etc, thereby
+                        making full use of CPU. The aim of CPU scheduling is to make the system efficient, fast and
+                        fair.
+
+                        Whenever the CPU becomes idle, the operating system must select one of the processes in the
+                        ready
+                        queue
+                        to be executed. The selection process is carried out by the short-term scheduler (or CPU
+                        scheduler).
+                        The
+                        scheduler selects from among the processes in memory that are ready to execute, and allocates
+                        the
+                        CPU to
+                        one of them.</p>
+
+                </div>
+            </div>
+
+
+        </div>
 
 
         <div class="container-fluid">
-            <div class="row m-3">
+            <div class="row m-lg-3 m-sm-1">
                 <div class="col-lg-4 col-sm-12">
-                    <H6>Create Process</H6>
+                    <H6>1. Create Processes</H6>
                     <div class="form-group row align-items-center">
                         <div class="col-lg-12 col-sm-12">
                             <input type="text" class="form-control mb-2" placeholder="Process Name" id="processName">
@@ -57,11 +89,12 @@
                         </div>
                         <div class="col-lg-12 col-sm-4">
                             <button class="btn btn-primary " id="createProcess">Create Process</button>
+                            <button class="btn btn-dark " id="sampleProcess">Sample Processes</button>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-8 col-sm-12">
-                    <H6>Processes</H6>
+                    <H6>2. Processes</H6>
                     <div id="processList" style="min-height:200px; max-height: 200px; overflow: scroll;">
                         <table class="table" id="processList">
                             <thead>
@@ -82,9 +115,9 @@
                 </div>
             </div>
 
-            <div class="row m-3">
+            <div class="row m-lg-3 m-sm-1">
                 <div class="col-lg-12 col-sm-12">
-                    <h6>Mode</h6>
+                    <h6>3. Select Scheduling Algorithm</h6>
                     <fieldset class="form-group">
                         <div class="row">
 
@@ -95,10 +128,18 @@
                                     <label class="form-check-label" for="mode">
                                         First Come First Served (FCFS)
                                         <a href="https://www.youtube.com/watch?v=HIB3hZ-5fHw" target="_blank">
-                                            <svg class="bi bi-box-arrow-in-down-left" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd" d="M1.5 13A1.5 1.5 0 003 14.5h10a1.5 1.5 0 001.5-1.5V8a.5.5 0 00-1 0v5a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5h4a.5.5 0 000-1H3A1.5 1.5 0 001.5 3v10z" clip-rule="evenodd"/>
-                                                <path fill-rule="evenodd" d="M11.5 10a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V5a.5.5 0 011 0v4.5H11a.5.5 0 01.5.5z" clip-rule="evenodd"/>
-                                                <path fill-rule="evenodd" d="M5.646 10.354a.5.5 0 010-.708l8-8a.5.5 0 01.708.708l-8 8a.5.5 0 01-.708 0z" clip-rule="evenodd"/>
+                                            <svg class="bi bi-box-arrow-in-down-left" width="1em" height="1em"
+                                                viewBox="0 0 16 16" fill="currentColor"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd"
+                                                    d="M1.5 13A1.5 1.5 0 003 14.5h10a1.5 1.5 0 001.5-1.5V8a.5.5 0 00-1 0v5a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5h4a.5.5 0 000-1H3A1.5 1.5 0 001.5 3v10z"
+                                                    clip-rule="evenodd" />
+                                                <path fill-rule="evenodd"
+                                                    d="M11.5 10a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V5a.5.5 0 011 0v4.5H11a.5.5 0 01.5.5z"
+                                                    clip-rule="evenodd" />
+                                                <path fill-rule="evenodd"
+                                                    d="M5.646 10.354a.5.5 0 010-.708l8-8a.5.5 0 01.708.708l-8 8a.5.5 0 01-.708 0z"
+                                                    clip-rule="evenodd" />
                                             </svg>
                                         </a>
                                     </label>
@@ -112,10 +153,18 @@
                                     <label class="form-check-label" for="mode">
                                         Round Robin (RR)
                                         <a href="https://www.youtube.com/watch?v=vuBt54W3hXk" target="_blank">
-                                            <svg class="bi bi-box-arrow-in-down-left" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd" d="M1.5 13A1.5 1.5 0 003 14.5h10a1.5 1.5 0 001.5-1.5V8a.5.5 0 00-1 0v5a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5h4a.5.5 0 000-1H3A1.5 1.5 0 001.5 3v10z" clip-rule="evenodd"/>
-                                                <path fill-rule="evenodd" d="M11.5 10a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V5a.5.5 0 011 0v4.5H11a.5.5 0 01.5.5z" clip-rule="evenodd"/>
-                                                <path fill-rule="evenodd" d="M5.646 10.354a.5.5 0 010-.708l8-8a.5.5 0 01.708.708l-8 8a.5.5 0 01-.708 0z" clip-rule="evenodd"/>
+                                            <svg class="bi bi-box-arrow-in-down-left" width="1em" height="1em"
+                                                viewBox="0 0 16 16" fill="currentColor"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd"
+                                                    d="M1.5 13A1.5 1.5 0 003 14.5h10a1.5 1.5 0 001.5-1.5V8a.5.5 0 00-1 0v5a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5h4a.5.5 0 000-1H3A1.5 1.5 0 001.5 3v10z"
+                                                    clip-rule="evenodd" />
+                                                <path fill-rule="evenodd"
+                                                    d="M11.5 10a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V5a.5.5 0 011 0v4.5H11a.5.5 0 01.5.5z"
+                                                    clip-rule="evenodd" />
+                                                <path fill-rule="evenodd"
+                                                    d="M5.646 10.354a.5.5 0 010-.708l8-8a.5.5 0 01.708.708l-8 8a.5.5 0 01-.708 0z"
+                                                    clip-rule="evenodd" />
                                             </svg>
                                         </a>
                                     </label>
@@ -131,10 +180,18 @@
                                         Shortest Job First
 
                                         <a href="https://www.youtube.com/watch?v=xh8hRjtbu3k" target="_blank">
-                                            <svg class="bi bi-box-arrow-in-down-left" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd" d="M1.5 13A1.5 1.5 0 003 14.5h10a1.5 1.5 0 001.5-1.5V8a.5.5 0 00-1 0v5a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5h4a.5.5 0 000-1H3A1.5 1.5 0 001.5 3v10z" clip-rule="evenodd"/>
-                                                <path fill-rule="evenodd" d="M11.5 10a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V5a.5.5 0 011 0v4.5H11a.5.5 0 01.5.5z" clip-rule="evenodd"/>
-                                                <path fill-rule="evenodd" d="M5.646 10.354a.5.5 0 010-.708l8-8a.5.5 0 01.708.708l-8 8a.5.5 0 01-.708 0z" clip-rule="evenodd"/>
+                                            <svg class="bi bi-box-arrow-in-down-left" width="1em" height="1em"
+                                                viewBox="0 0 16 16" fill="currentColor"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd"
+                                                    d="M1.5 13A1.5 1.5 0 003 14.5h10a1.5 1.5 0 001.5-1.5V8a.5.5 0 00-1 0v5a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5h4a.5.5 0 000-1H3A1.5 1.5 0 001.5 3v10z"
+                                                    clip-rule="evenodd" />
+                                                <path fill-rule="evenodd"
+                                                    d="M11.5 10a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V5a.5.5 0 011 0v4.5H11a.5.5 0 01.5.5z"
+                                                    clip-rule="evenodd" />
+                                                <path fill-rule="evenodd"
+                                                    d="M5.646 10.354a.5.5 0 010-.708l8-8a.5.5 0 01.708.708l-8 8a.5.5 0 01-.708 0z"
+                                                    clip-rule="evenodd" />
                                             </svg>
                                         </a>
 
@@ -149,10 +206,18 @@
                                     <label class="form-check-label" for="mode">
                                         Shortest Remaining Time (SRT)
                                         <a href="https://www.youtube.com/watch?v=YxbldXw1FLM" target="_blank">
-                                            <svg class="bi bi-box-arrow-in-down-left" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd" d="M1.5 13A1.5 1.5 0 003 14.5h10a1.5 1.5 0 001.5-1.5V8a.5.5 0 00-1 0v5a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5h4a.5.5 0 000-1H3A1.5 1.5 0 001.5 3v10z" clip-rule="evenodd"/>
-                                                <path fill-rule="evenodd" d="M11.5 10a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V5a.5.5 0 011 0v4.5H11a.5.5 0 01.5.5z" clip-rule="evenodd"/>
-                                                <path fill-rule="evenodd" d="M5.646 10.354a.5.5 0 010-.708l8-8a.5.5 0 01.708.708l-8 8a.5.5 0 01-.708 0z" clip-rule="evenodd"/>
+                                            <svg class="bi bi-box-arrow-in-down-left" width="1em" height="1em"
+                                                viewBox="0 0 16 16" fill="currentColor"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd"
+                                                    d="M1.5 13A1.5 1.5 0 003 14.5h10a1.5 1.5 0 001.5-1.5V8a.5.5 0 00-1 0v5a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5h4a.5.5 0 000-1H3A1.5 1.5 0 001.5 3v10z"
+                                                    clip-rule="evenodd" />
+                                                <path fill-rule="evenodd"
+                                                    d="M11.5 10a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V5a.5.5 0 011 0v4.5H11a.5.5 0 01.5.5z"
+                                                    clip-rule="evenodd" />
+                                                <path fill-rule="evenodd"
+                                                    d="M5.646 10.354a.5.5 0 010-.708l8-8a.5.5 0 01.708.708l-8 8a.5.5 0 01-.708 0z"
+                                                    clip-rule="evenodd" />
                                             </svg>
                                         </a>
                                     </label>
@@ -166,10 +231,18 @@
                                     <label class="form-check-label" for="mode">
                                         Non-Preemptive Priority Scheduling (Large is low)
                                         <a href="https://www.youtube.com/watch?v=i4PQucowf1c" target="_blank">
-                                            <svg class="bi bi-box-arrow-in-down-left" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd" d="M1.5 13A1.5 1.5 0 003 14.5h10a1.5 1.5 0 001.5-1.5V8a.5.5 0 00-1 0v5a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5h4a.5.5 0 000-1H3A1.5 1.5 0 001.5 3v10z" clip-rule="evenodd"/>
-                                                <path fill-rule="evenodd" d="M11.5 10a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V5a.5.5 0 011 0v4.5H11a.5.5 0 01.5.5z" clip-rule="evenodd"/>
-                                                <path fill-rule="evenodd" d="M5.646 10.354a.5.5 0 010-.708l8-8a.5.5 0 01.708.708l-8 8a.5.5 0 01-.708 0z" clip-rule="evenodd"/>
+                                            <svg class="bi bi-box-arrow-in-down-left" width="1em" height="1em"
+                                                viewBox="0 0 16 16" fill="currentColor"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd"
+                                                    d="M1.5 13A1.5 1.5 0 003 14.5h10a1.5 1.5 0 001.5-1.5V8a.5.5 0 00-1 0v5a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5h4a.5.5 0 000-1H3A1.5 1.5 0 001.5 3v10z"
+                                                    clip-rule="evenodd" />
+                                                <path fill-rule="evenodd"
+                                                    d="M11.5 10a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V5a.5.5 0 011 0v4.5H11a.5.5 0 01.5.5z"
+                                                    clip-rule="evenodd" />
+                                                <path fill-rule="evenodd"
+                                                    d="M5.646 10.354a.5.5 0 010-.708l8-8a.5.5 0 01.708.708l-8 8a.5.5 0 01-.708 0z"
+                                                    clip-rule="evenodd" />
                                             </svg>
                                         </a>
                                     </label>
@@ -184,10 +257,18 @@
                                     <label class="form-check-label" for="mode">
                                         Preemptive Priority Scheduling (Large is low)
                                         <a href="https://www.youtube.com/watch?v=hDn4hM148V8" target="_blank">
-                                            <svg class="bi bi-box-arrow-in-down-left" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd" d="M1.5 13A1.5 1.5 0 003 14.5h10a1.5 1.5 0 001.5-1.5V8a.5.5 0 00-1 0v5a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5h4a.5.5 0 000-1H3A1.5 1.5 0 001.5 3v10z" clip-rule="evenodd"/>
-                                                <path fill-rule="evenodd" d="M11.5 10a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V5a.5.5 0 011 0v4.5H11a.5.5 0 01.5.5z" clip-rule="evenodd"/>
-                                                <path fill-rule="evenodd" d="M5.646 10.354a.5.5 0 010-.708l8-8a.5.5 0 01.708.708l-8 8a.5.5 0 01-.708 0z" clip-rule="evenodd"/>
+                                            <svg class="bi bi-box-arrow-in-down-left" width="1em" height="1em"
+                                                viewBox="0 0 16 16" fill="currentColor"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd"
+                                                    d="M1.5 13A1.5 1.5 0 003 14.5h10a1.5 1.5 0 001.5-1.5V8a.5.5 0 00-1 0v5a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5h4a.5.5 0 000-1H3A1.5 1.5 0 001.5 3v10z"
+                                                    clip-rule="evenodd" />
+                                                <path fill-rule="evenodd"
+                                                    d="M11.5 10a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V5a.5.5 0 011 0v4.5H11a.5.5 0 01.5.5z"
+                                                    clip-rule="evenodd" />
+                                                <path fill-rule="evenodd"
+                                                    d="M5.646 10.354a.5.5 0 010-.708l8-8a.5.5 0 01.708.708l-8 8a.5.5 0 01-.708 0z"
+                                                    clip-rule="evenodd" />
                                             </svg>
                                         </a>
                                     </label>
@@ -201,10 +282,18 @@
                                     <label class="form-check-label" for="mode">
                                         Non-Preemptive Priority Scheduling (Large is high)
                                         <a href="https://www.youtube.com/watch?v=i4PQucowf1c" target="_blank">
-                                            <svg class="bi bi-box-arrow-in-down-left" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd" d="M1.5 13A1.5 1.5 0 003 14.5h10a1.5 1.5 0 001.5-1.5V8a.5.5 0 00-1 0v5a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5h4a.5.5 0 000-1H3A1.5 1.5 0 001.5 3v10z" clip-rule="evenodd"/>
-                                                <path fill-rule="evenodd" d="M11.5 10a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V5a.5.5 0 011 0v4.5H11a.5.5 0 01.5.5z" clip-rule="evenodd"/>
-                                                <path fill-rule="evenodd" d="M5.646 10.354a.5.5 0 010-.708l8-8a.5.5 0 01.708.708l-8 8a.5.5 0 01-.708 0z" clip-rule="evenodd"/>
+                                            <svg class="bi bi-box-arrow-in-down-left" width="1em" height="1em"
+                                                viewBox="0 0 16 16" fill="currentColor"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd"
+                                                    d="M1.5 13A1.5 1.5 0 003 14.5h10a1.5 1.5 0 001.5-1.5V8a.5.5 0 00-1 0v5a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5h4a.5.5 0 000-1H3A1.5 1.5 0 001.5 3v10z"
+                                                    clip-rule="evenodd" />
+                                                <path fill-rule="evenodd"
+                                                    d="M11.5 10a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V5a.5.5 0 011 0v4.5H11a.5.5 0 01.5.5z"
+                                                    clip-rule="evenodd" />
+                                                <path fill-rule="evenodd"
+                                                    d="M5.646 10.354a.5.5 0 010-.708l8-8a.5.5 0 01.708.708l-8 8a.5.5 0 01-.708 0z"
+                                                    clip-rule="evenodd" />
                                             </svg>
                                         </a>
                                     </label>
@@ -219,10 +308,18 @@
                                     <label class="form-check-label" for="mode">
                                         Preemptive Priority Scheduling (Large is high)
                                         <a href="https://www.youtube.com/watch?v=hDn4hM148V8" target="_blank">
-                                            <svg class="bi bi-box-arrow-in-down-left" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd" d="M1.5 13A1.5 1.5 0 003 14.5h10a1.5 1.5 0 001.5-1.5V8a.5.5 0 00-1 0v5a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5h4a.5.5 0 000-1H3A1.5 1.5 0 001.5 3v10z" clip-rule="evenodd"/>
-                                                <path fill-rule="evenodd" d="M11.5 10a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V5a.5.5 0 011 0v4.5H11a.5.5 0 01.5.5z" clip-rule="evenodd"/>
-                                                <path fill-rule="evenodd" d="M5.646 10.354a.5.5 0 010-.708l8-8a.5.5 0 01.708.708l-8 8a.5.5 0 01-.708 0z" clip-rule="evenodd"/>
+                                            <svg class="bi bi-box-arrow-in-down-left" width="1em" height="1em"
+                                                viewBox="0 0 16 16" fill="currentColor"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd"
+                                                    d="M1.5 13A1.5 1.5 0 003 14.5h10a1.5 1.5 0 001.5-1.5V8a.5.5 0 00-1 0v5a.5.5 0 01-.5.5H3a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5h4a.5.5 0 000-1H3A1.5 1.5 0 001.5 3v10z"
+                                                    clip-rule="evenodd" />
+                                                <path fill-rule="evenodd"
+                                                    d="M11.5 10a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V5a.5.5 0 011 0v4.5H11a.5.5 0 01.5.5z"
+                                                    clip-rule="evenodd" />
+                                                <path fill-rule="evenodd"
+                                                    d="M5.646 10.354a.5.5 0 010-.708l8-8a.5.5 0 01.708.708l-8 8a.5.5 0 01-.708 0z"
+                                                    clip-rule="evenodd" />
                                             </svg>
                                         </a>
                                     </label>
@@ -248,9 +345,9 @@
 
 
 
-            <div class="row m-3">
+            <div class="row m-lg-3 m-sm-1">
                 <div class="col-lg-8 col-sm-12">
-                    
+
 
                     <h6>Gantt Chart</h6>
                     The Current Time is: <div id="currentTime"></div>
@@ -279,6 +376,20 @@
                         </div>
                     </div>
                 </div>
+
+
+            </div>
+
+            <div class="row m-lg-3 m-sm-1">
+                <div class="col-12 ">
+                    <h6>Logs</h6>
+                    <div class="LogContainer m-3" style="padding-left:1em; max-height: 10em; overflow-y: scroll;">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-lg-3 m-sm-1">
                 <div class="col-12 ">
                     <h6>Summary</h6>
                     <div class="row" id="summary"></div>
@@ -290,18 +401,37 @@
             </div>
         </div>
 
-
-
     </div>
 
 
 
-
-
-
-
-
-
+    <script type='text/javascript' data-cfasync='false'>
+        window.purechatApi = {
+            l: [],
+            t: [],
+            on: function () {
+                this.l.push(arguments);
+            }
+        };
+        (function () {
+            var done = false;
+            var script = document.createElement('script');
+            script.async = true;
+            script.type = 'text/javascript';
+            script.src = 'https://app.purechat.com/VisitorWidget/WidgetScript';
+            document.getElementsByTagName('HEAD').item(0).appendChild(script);
+            script.onreadystatechange = script.onload = function (e) {
+                if (!done && (!this.readyState || this.readyState == 'loaded' || this.readyState ==
+                    'complete')) {
+                    var w = new PCWidget({
+                        c: '673ee83a-f15e-47c5-987b-169dec7cbc1c',
+                        f: true
+                    });
+                    done = true;
+                }
+            };
+        })();
+    </script>
 
 
 
@@ -319,7 +449,7 @@
     </script>
 
     <script src="res/js/script.js"></script>
-    
+
 
 </body>
 

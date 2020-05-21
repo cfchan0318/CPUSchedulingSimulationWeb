@@ -53,7 +53,7 @@ Process = [];
 ];
 */
 
-/*Process = [{
+sampleProcess = [{
     "processOrder": 1,
     "processName": "P1",
     "processDurationTime": 3,
@@ -129,7 +129,7 @@ Process = [];
     "exitTime": null,
     "color": "#434343",
 },
-];*/
+];
 
 class qup_process {
     constructor(process) {
@@ -143,6 +143,7 @@ class qup_process {
         this.ready_queue = [];
         this.show_gantt = [];
         this.total_time = 999;
+        this.logs = [];
     }
 
 };
@@ -153,6 +154,10 @@ class priorityPreemptiveLargeIsLow extends qup_process {
         var time = 0;
         var ready_queue = [];
         var total_time = this.total_time;
+        var log_array = [];
+
+
+        this.logs[time] = [];
 
         //assign remaining time to the duration for calcualtion
         for (var i = 0; i < process.length; i++) {
@@ -161,7 +166,9 @@ class priorityPreemptiveLargeIsLow extends qup_process {
 
         //console.log(total_time);
         while (time < total_time) {
+
             console.log("The Time Now is: " + time);
+
 
             //add Processes to ready_queue if 
             for (var i = 0; i < process.length; i++) {
@@ -170,6 +177,10 @@ class priorityPreemptiveLargeIsLow extends qup_process {
                 if (time >= Number(process[i].processArrivalTime) &&
                     !(ready_queue.includes(process[i])) &&
                     process[i].timeRemain > 0) {
+
+                    var log = "Time=" + time + ", process: " + process[i].processName + " is added to ready queue";
+                    this.logs[time].push(log);
+
 
 
                     ready_queue.push(process[i]);
@@ -196,14 +207,17 @@ class priorityPreemptiveLargeIsLow extends qup_process {
                 while (exec_time < job_srt_time) {
                     console.log("The Time Now is: " + time);
 
-                    //add Processes to ready queue
+
+                    //add Processes to ready queue During simulation
                     for (var i = 0; i < process.length; i++) {
-                        //console.log("Time remain for " + process[i].processName + " is " + process[i].timeRemain);
+
                         if (time >= Number(process[i].processArrivalTime) &&
                             !(ready_queue.includes(process[i]))) {
 
                             if (process[i].timeRemain > 0) {
                                 ready_queue.push(process[i]);
+                                var log = "Time=" + time + ", process: " + process[i].processName + " is added to ready queue";
+                                this.logs[time].push(log);
                             }
 
                         }
@@ -218,7 +232,9 @@ class priorityPreemptiveLargeIsLow extends qup_process {
 
                         var index = findWithAttr(ready_queue, "processName", job_srt.processName);
                         if (ready_queue[index].timeRemain === 0) {
-                            //console.log(ready_queue[index].processName + " starts from " + job_start_time + " is done at " + time);
+
+                            var log = "Time=" + time + ", process: " + process[i].processName + " terminated.";
+                            this.logs[time].push(log);
 
                             //Add End time of process for calculation
                             var Process_index = findWithAttr(process, "processName", ready_queue[index].processName);
@@ -236,8 +252,13 @@ class priorityPreemptiveLargeIsLow extends qup_process {
                             };
                             this.gantt.push(newGantt);
                             ready_queue.splice(index, 1);
+
                         } else {
+
                             //console.log(job_srt.processName + " starts from " + job_start_time + " is done at " + time);
+                            var log = "Time=" + time + ", process: " + job_srt + " stopped." + ready_queue[0] + " has higher priority of " + job_srt.processPriority;
+
+                            this.logs[time].push(log);
 
                             var newGantt = {
                                 "type": "process",
@@ -261,10 +282,13 @@ class priorityPreemptiveLargeIsLow extends qup_process {
 
                         time++;
                         exec_time++;
-
+                        this.logs[time] = [];
 
                         if (ready_queue[index].timeRemain === 0) {
+
                             //console.log(ready_queue[index].processName + " starts from " + job_start_time + " is done at " + time);
+                            log = "Time=" + time + ", process: " + ready_queue[index].processName + " terminated.";
+                            this.logs[time].push(log);
 
                             //Add End time of process for calculation
                             var Process_index = findWithAttr(process, "processName", ready_queue[index].processName);
@@ -283,6 +307,7 @@ class priorityPreemptiveLargeIsLow extends qup_process {
                             this.gantt.push(newGantt);
                             ready_queue.splice(index, 1);
                         }
+
 
 
                     } else {
@@ -304,7 +329,15 @@ class priorityPreemptiveLargeIsLow extends qup_process {
                     }
                 }
 
+                //console.log(ready_queue[index].processName + " starts from " + job_start_time + " is done at " + time);
+                log = "Time=" + time + ", ALL processes terminated. Simulation Done.";
+                log_array.push(log);
+                this.logs[time] = log_array;
+                log_array = [];
+
                 if (allProcessDone === false) {
+
+
                     var newGantt = {
                         "type": "gap",
                         "processName": "",
@@ -447,6 +480,8 @@ class priorityPreemptiveLargeIsHigh extends qup_process {
         var ready_queue = [];
         var total_time = this.total_time;
 
+        this.logs[time] = [];
+
         //assign remaining time to the duration for calcualtion
         for (var i = 0; i < process.length; i++) {
             process[i].timeRemain = process[i].processDurationTime;
@@ -466,6 +501,8 @@ class priorityPreemptiveLargeIsHigh extends qup_process {
 
 
                     ready_queue.push(process[i]);
+                    var log = "Time=" + time + ", process: " + process[i].processName + " is added to ready queue";
+                    this.logs[time].push(log);
                 }
             }
 
@@ -489,6 +526,9 @@ class priorityPreemptiveLargeIsHigh extends qup_process {
                 while (exec_time < job_srt_time) {
                     console.log("The Time Now is: " + time);
 
+                    log = "Time=" + time + ", process: " + ready_queue[0].processName + " is running.";
+                    this.logs[time].push(log);
+
                     //add Processes to ready queue
                     for (var i = 0; i < process.length; i++) {
                         //console.log("Time remain for " + process[i].processName + " is " + process[i].timeRemain);
@@ -497,6 +537,8 @@ class priorityPreemptiveLargeIsHigh extends qup_process {
 
                             if (process[i].timeRemain > 0) {
                                 ready_queue.push(process[i]);
+                                var log = "Time=" + time + ", process: " + process[i].processName + " is added to ready queue";
+                                this.logs[time].push(log);
                             }
 
                         }
@@ -511,7 +553,9 @@ class priorityPreemptiveLargeIsHigh extends qup_process {
 
                         var index = findWithAttr(ready_queue, "processName", job_srt.processName);
                         if (ready_queue[index].timeRemain === 0) {
-                            console.log(ready_queue[index].processName + " starts from " + job_start_time + " is done at " + time);
+                            //console.log(ready_queue[index].processName + " starts from " + job_start_time + " is done at " + time);
+                            var log = "Time=" + time + ", process: " + ready_queue[index].processName + " terminated.";
+                            this.logs[time].push(log);
 
                             var newGantt = {
                                 "type": "process",
@@ -526,6 +570,9 @@ class priorityPreemptiveLargeIsHigh extends qup_process {
                             ready_queue.splice(index, 1);
                         } else {
                             console.log(job_srt.processName + " starts from " + job_start_time + " is done at " + time);
+
+                            var log = "Time=" + time + ", process: " + job_srt.processName + " stopped. Process " + ready_queue[0].processName + " has higher priority of " + job_srt.processPriority;
+                            this.logs[time].push(log);
 
                             var newGantt = {
                                 "type": "process",
@@ -549,9 +596,12 @@ class priorityPreemptiveLargeIsHigh extends qup_process {
 
                         time++;
                         exec_time++;
+                        this.logs[time] = [];
 
                         if (ready_queue[index].timeRemain === 0) {
                             console.log(ready_queue[index].processName + " starts from " + job_start_time + " is done at " + time);
+                            log = "Time=" + time + ", process: " + ready_queue[index].processName + " terminated.";
+                            this.logs[time].push(log);
 
                             //Add End time of process for calculation
                             var Process_index = findWithAttr(process, "processName", ready_queue[index].processName);
@@ -591,6 +641,7 @@ class priorityPreemptiveLargeIsHigh extends qup_process {
                     }
                 }
 
+
                 if (allProcessDone === false) {
                     var newGantt = {
                         "type": "gap",
@@ -606,6 +657,9 @@ class priorityPreemptiveLargeIsHigh extends qup_process {
 
                 } else {
 
+                    var log = "Time=" + time + ", ALL processes terminated. Simulation Done.";
+                    this.logs[time].push(log);
+                    //log_array = [];
 
                     break;
                 }
@@ -1346,7 +1400,7 @@ function editProcess(processName) {
 //Delete Process
 function removeProcess(processName) {
     findAndRemove(Process, 'processName', processName);
-    $('#row' + processName).remove();
+    $('#rowProcessName' + processName).remove();
 }
 
 //Process List
@@ -1466,6 +1520,15 @@ $(document).ready(function () {
         console.log(Process);
     });
 
+    $("#sampleProcess").click(function () {
+        Process = [];
+        Process = JSON.parse(JSON.stringify(sampleProcess));
+        Process.forEach(element => {
+            addProcessToTable(element);
+        });
+    });
+
+
     $("#calculateAll").click(function () {
         if (simulation !== null) {
 
@@ -1473,6 +1536,7 @@ $(document).ready(function () {
             display_time = simulation.gantt[simulation.gantt.length - 1].endTime;
             displayCurrentTime(display_time);
             displaySummary(simulation);
+            drawLogs(simulation.logs,display_time);
         }
     });
 
@@ -1499,6 +1563,7 @@ $(document).ready(function () {
             display_time--;
             displayCurrentTime(display_time);
             drawGanttForCertainTime(simulation.show_gantt, display_time);
+            drawLogsForCertainTime(simulation.logs, display_time);
             drawReadyQueueForCertainTime(simulation.ready_queue, display_time);
         } else {
             alert("there's nothing before you start the simulation lol.");
@@ -1513,6 +1578,7 @@ $(document).ready(function () {
             display_time++;
             displayCurrentTime(display_time);
             drawGanttForCertainTime(simulation.show_gantt, display_time);
+            drawLogsForCertainTime(simulation.logs, display_time);
             drawReadyQueueForCertainTime(simulation.ready_queue, display_time);
         }
     });
@@ -1523,8 +1589,8 @@ $(document).ready(function () {
 function addProcessToTable(process) {
 
     $("#processList tbody").append(
-        "<tr>" +
-        " <td id='rowProcessName" + process.processName + "'>" + process.processName + "</td>" +
+        "<tr  id='rowProcessName" + process.processName + "'> " +
+        " <td>" + process.processName + "</td>" +
         " <td>" + process.processDurationTime + "</td>" +
         " <td>" + process.processArrivalTime + "</td>" +
         " <td>" + process.processPriority + "</td>" +
@@ -1638,7 +1704,26 @@ function drawReadyQueueForCertainTime(ready_queue, time) {
     }
 }
 
+//Logs
+function drawLogs(logs, time) {
+    var bar = "";
+    for (var t = 0; t < time; t++) {
+        for (var i = 0; i < logs[t].length; i++) {
+            bar += "<div class='row'>" + logs[t][i] + "</div>"
+        }
+    }
+    $(".LogContainer").html(bar);
+}
 
+function drawLogsForCertainTime(logs, time) {
+
+    var bar = "";
+    for (var i = 0; i < logs[time].length; i++) {
+        bar += "<div class='row'>" + logs[time][i] + "</div>"
+    }
+    $(".LogContainer").html(bar);
+
+}
 
 function displayCurrentTime(time) {
     $("#currentTime").html(time);
