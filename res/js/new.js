@@ -82,6 +82,7 @@ class simulation {
 
         //Setup
         this.process = processList;
+        this.timeQuantum = $("#timeQuantum").val();
 
         //Summary Related
         this.totalWaitTime = 0;
@@ -116,7 +117,7 @@ class simulation {
                 this.process[i].exitTime === null) {
 
                 this.ready_queue.push(this.process[i]);
-                var log = `Process ${this.process[i].processName} is added to the ready queue at ${this.time}`;
+                var log = `Time[${this.time}] Process ${this.process[i].processName} is added to the ready queue at ${this.time}`;
                 this.pushActionsToLog(this.time, log);
             }
         }
@@ -163,10 +164,10 @@ class simulation {
         this.logGantt[time] = JSON.parse(JSON.stringify(this.gantt));
     }
 
-    pushActionsToLog(time,log){
-        if(this.logActions[time]!== undefined){
+    pushActionsToLog(time, log) {
+        if (this.logActions[time] !== undefined) {
             this.logActions[time].push(log);
-        }else{
+        } else {
             this.logActions[time] = [];
             this.logActions[time].push(log);
         }
@@ -180,7 +181,8 @@ class simulation {
 
 };
 
-class FCFS_NEW extends simulation {
+class priorityNonPreemptiveLargeIsLow extends simulation {
+
     execute() {
         this.setProcessesTimeRemain();
         while (!this.allProcessTerminated()) {
@@ -190,7 +192,7 @@ class FCFS_NEW extends simulation {
 
             if (this.ready_queue.length > 0) {
 
-                this.ready_queue.sort(sortByProperty("processArrivalTime"));
+                this.ready_queue.sort(sortByProperty("processPriority"));
 
                 var executionTime = Number(this.ready_queue[0].processDurationTime);
                 var startTime = this.time;
@@ -223,6 +225,219 @@ class FCFS_NEW extends simulation {
 
     }
 
+    run() {
+        drawGantt(this.logGantt[this.logGantt.length - 1]);
+    }
+}
+
+class priorityNonPreemptiveLargeIsHigh extends simulation {
+
+    execute() {
+        this.setProcessesTimeRemain();
+        while (!this.allProcessTerminated()) {
+
+            this.addProcessToReadyQueue();
+            this.pushReadyQueueToLog(this.time);
+
+            if (this.ready_queue.length > 0) {
+
+                this.ready_queue.sort(sortByPropertyRevese("processPriority"));
+
+                var executionTime = Number(this.ready_queue[0].processDurationTime);
+                var startTime = this.time;
+                var endTime = this.time + executionTime;
+
+                this.addExitTimeToProcess(this.ready_queue[0].processName, endTime);
+
+                var log = `Time[${startTime}]: Process ${this.ready_queue[0].processName} starts running at ${startTime}`;
+                this.pushActionsToLog(startTime, log);
+
+                this.addProcessGantt(this.ready_queue[0], this.time, endTime);
+
+                var log = `Time[${endTime}]: Process ${this.ready_queue[0].processName} terminated at ${endTime}`;
+                this.pushActionsToLog(endTime, log);
+
+                this.ready_queue.splice(0, 1);
+                this.pushGanttToLog(startTime);
+
+                this.time = endTime;
+
+            } else {
+                if (this.allProcessTerminated()) {
+                    break;
+                } else {
+                    this.addBlankGantt(this.time);
+                    this.time++;
+                }
+            }
+        }
+
+    }
+
+    run() {
+        drawGantt(this.logGantt[this.logGantt.length - 1]);
+    }
+}
+
+
+class shortestJobFirst extends simulation {
+    execute() {
+        this.setProcessesTimeRemain();
+        while (!this.allProcessTerminated()) {
+
+            this.addProcessToReadyQueue();
+            this.pushReadyQueueToLog(this.time);
+
+            if (this.ready_queue.length > 0) {
+
+                this.ready_queue.sort(sortByProperty("processDurationTime"));
+
+                var executionTime = Number(this.ready_queue[0].processDurationTime);
+                var startTime = this.time;
+                var endTime = this.time + executionTime;
+
+                this.addExitTimeToProcess(this.ready_queue[0].processName, endTime);
+
+                var log = `Time[${startTime}]: Process ${this.ready_queue[0].processName} starts running at ${startTime}`;
+                this.pushActionsToLog(startTime, log);
+
+                this.addProcessGantt(this.ready_queue[0], this.time, endTime);
+
+                var log = `Time[${endTime}]: Process ${this.ready_queue[0].processName} terminated at ${endTime}`;
+                this.pushActionsToLog(endTime, log);
+
+                this.ready_queue.splice(0, 1);
+                this.pushGanttToLog(startTime);
+
+                this.time = endTime;
+
+            } else {
+                if (this.allProcessTerminated()) {
+                    break;
+                } else {
+                    this.addBlankGantt(this.time);
+                    this.time++;
+                }
+            }
+        }
+
+    }
+
+    run() {
+        drawGantt(this.logGantt[this.logGantt.length - 1]);
+    }
+}
+
+class shortestRemainingTime extends simulation {
+    execute() {
+        this.setProcessesTimeRemain();
+        while (!this.allProcessTerminated()) {
+
+            this.addProcessToReadyQueue();
+            this.pushReadyQueueToLog(this.time);
+
+            if (this.ready_queue.length > 0) {
+
+                this.ready_queue.sort(sortByProperty("processDurationTime"));
+
+                var executionTime = Number(this.ready_queue[0].processDurationTime);
+                var startTime = this.time;
+                var endTime = this.time + executionTime;
+
+                this.addExitTimeToProcess(this.ready_queue[0].processName, endTime);
+
+                var log = `Time[${startTime}]: Process ${this.ready_queue[0].processName} starts running at ${startTime}`;
+                this.pushActionsToLog(startTime, log);
+
+                this.addProcessGantt(this.ready_queue[0], this.time, endTime);
+
+                var log = `Time[${endTime}]: Process ${this.ready_queue[0].processName} terminated at ${endTime}`;
+                this.pushActionsToLog(endTime, log);
+
+                this.ready_queue.splice(0, 1);
+                this.pushGanttToLog(startTime);
+
+                this.time = endTime;
+
+            } else {
+                if (this.allProcessTerminated()) {
+                    break;
+                } else {
+                    this.addBlankGantt(this.time);
+                    this.time++;
+                }
+            }
+        }
+
+    }
+
+    run() {
+        drawGantt(this.logGantt[this.logGantt.length - 1]);
+    }
+}
+
+class roundRobin extends simulation {
+    execute() {
+        this.setProcessesTimeRemain();
+        while (!this.allProcessTerminated()) {
+
+            this.addProcessToReadyQueue();
+            this.pushReadyQueueToLog(this.time);
+
+            if (this.ready_queue.length > 0) {
+
+                if (this.ready_queue[0].timeRemain > Number(this.timeQuantum)) {
+
+                    var startTime = this.time;
+                    var endTime = this.time + Number(this.timeQuantum);
+                    var log = `Time[${startTime}]: Process ${this.ready_queue[0].processName} starts running at ${startTime}`;
+                    this.pushActionsToLog(startTime, log);
+
+                    this.addProcessGantt(this.ready_queue[0], this.time, endTime);
+                    this.pushGanttToLog(startTime);
+
+                    this.ready_queue[0].timeRemain -= this.timeQuantum;
+
+                    var log = `Time[${endTime}]: Process ${this.ready_queue[0].processName} stopped at ${endTime}`;
+                    this.pushActionsToLog(endTime, log);
+
+                    this.ready_queue.push(this.ready_queue[0]);
+                    this.ready_queue.splice(0,1);
+
+                    this.time = endTime;
+
+                } else {
+
+                    var startTime = this.time;
+                    var endTime = this.time + this.ready_queue[0].timeRemain;
+
+                    this.addExitTimeToProcess(this.ready_queue[0].processName, endTime);
+
+                    var log = `Time[${startTime}]: Process ${this.ready_queue[0].processName} starts running at ${startTime}`;
+                    this.pushActionsToLog(startTime, log);
+
+                    this.addProcessGantt(this.ready_queue[0], this.time, endTime);
+
+                    var log = `Time[${endTime}]: Process ${this.ready_queue[0].processName} terminated at ${endTime}`;
+                    this.pushActionsToLog(endTime, log);
+
+                    this.ready_queue.splice(0,1);
+                    this.pushGanttToLog(startTime);
+
+                    this.time = endTime;
+                }
+
+            } else {
+                if (this.allProcessTerminated()) {
+                    break;
+                } else {
+                    this.addBlankGantt(this.time);
+                    this.time++;
+                }
+            }
+        }
+
+    }
     run() {
         drawGantt(this.logGantt[this.logGantt.length - 1]);
     }
@@ -406,8 +621,6 @@ function calculateAllTime(process_class) {
 //Interactive buttons
 $(document).ready(function () {
 
-
-
     $('#createProcess').click(function () {
         var processName = $("#processName").val();
         var processDurationTime = $("#processDurationTime").val();
@@ -418,50 +631,60 @@ $(document).ready(function () {
     });
 
     var display_time = 0;
+
     var simulation;
 
     $('#startSimulation').click(function () {
         const temp_Process = JSON.parse(JSON.stringify(Process));
 
-        if ($("input[id='mode']:checked").val() == "rr") {
-            simulation = new round_robin(Process);
-         
 
+        if ($("input[id='mode']:checked").val() == "rr") {
+            
+                simulation = new roundRobin(Process);
+                simulation.execute();
+            
         } else if ($("input[id='mode']:checked").val() == "fcfs") {
             simulation = new FCFS(Process);
-            
+            simulation.execute();
 
         } else if ($("input[id='mode']:checked").val() == "sjf") {
             simulation = new shortestJobFirst(Process);
-            
+            simulation.execute();
+
 
         } else if ($("input[id='mode']:checked").val() == "srt") {
             simulation = new shortestRemainingTime(Process);
-            
+            simulation.execute();
+
 
         } else if ($("input[id='mode']:checked").val() == "pri-nonpre") {
             simulation = new priorityNonPreemptiveLargeIsLow(Process);
-            
+            simulation.execute();
+
         } else if ($("input[id='mode']:checked").val() == "pri-pre") {
             simulation = new priorityPreemptiveLargeIsLow(Process);
-            
+            simulation.execute();
+
         } else if ($("input[id='mode']:checked").val() == "pri-nonpre-rev") {
             simulation = new priorityNonPreemptiveLargeIsHigh(Process);
-            
+            simulation.execute();
+
         } else if ($("input[id='mode']:checked").val() == "pri-pre-rev") {
+
             simulation = new priorityPreemptiveLargeIsHigh(Process);
-            
+            simulation.execute();
+
         }
 
 
         if (simulation != null) {
-            try{
-                simulation.execute();
+            try {
+
                 alert("Simulation is finished. \n" +
                     "You can now click Calculate All or Click Previous/Next" +
                     " to check how the algorithm works!\n" +
                     "Thanks for using qup! :)");
-            }catch{
+            } catch{
                 alert("error");
             }
         }
@@ -475,7 +698,7 @@ $(document).ready(function () {
         //Reset
         Process = [];
         Process = JSON.parse(JSON.stringify(temp_Process));
-        
+
     });
 
     $("#sampleProcess").click(function () {
@@ -619,6 +842,7 @@ function drawGanttForCertainTime(gantt, time) {
                         "<div class=\"gantt-process\">" +
                         "<div class=\"gantt-name\">" + gantt[time][i].processName + "</div>" +
                         "<div class=\"gantt-burst\">(" + gantt[time][i].burstTime + ")</div>" +
+                        "<h6> Priority: " + gantt[time][i].processPriority + "</h6>" +
                         "</div>" +
                         "<div class=\"gantt-bar\" style=\"width:" + gantt[time][i].burstTime * 6 + "rem; background-color:" + gantt[time][i].color + ";\"></div>" +
                         "<div class=\"gantt-time\">" +
@@ -640,7 +864,7 @@ function drawGanttForCertainTime(gantt, time) {
                 }
             }
             $(".gantt-container").html(bar);
-            
+
         }
     } catch{
         //catch nothing
