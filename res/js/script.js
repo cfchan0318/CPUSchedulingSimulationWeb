@@ -1517,7 +1517,6 @@ $(document).ready(function () {
 
         Process = [];
         Process = JSON.parse(JSON.stringify(temp_Process));
-        console.log(Process);
     });
 
     $("#sampleProcess").click(function () {
