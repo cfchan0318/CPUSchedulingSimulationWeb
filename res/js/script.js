@@ -1,62 +1,8 @@
-
 Process = [];
-
-/*Process = [{
-    "processOrder": 1,
-    "processName": "P1",
-    "processDurationTime": 6,
-    "processArrivalTime": 2,
-    "processPriority": 1,
-    "waitTime": null,
-    "turnaroundTime": null,
-    "color": "#FFFF00",
-
-}, {
-    "processOrder": 2,
-    "processName": "P2",
-    "processDurationTime": 2,
-    "processArrivalTime": 5,
-    "processPriority": 1,
-    "waitTime": null,
-    "turnaroundTime": null,
-    "color": "#00FF00",
-}, {
-    "processOrder": 3,
-    "processName": "P3",
-    "processDurationTime": 8,
-    "processArrivalTime": 1,
-    "processPriority": 1,
-    "waitTime": null,
-    "turnaroundTime": null,
-    "color": "#00FFFF",
-},
-{
-    "processOrder": 4,
-    "processName": "P4",
-    "processDurationTime": 3,
-    "processArrivalTime": 0,
-    "processPriority": 1,
-    "waitTime": null,
-    "turnaroundTime": null,
-    "color": "#FF0000",
-},
-{
-    "processOrder": 5,
-    "processName": "P5",
-    "processDurationTime": 4,
-    "processArrivalTime": 4,
-    "processPriority": 1,
-    "waitTime": null,
-    "turnaroundTime": null,
-    "color": "#FF00FF",
-},
-];
-*/
-
 sampleProcess = [{
     "processOrder": 1,
     "processName": "P1",
-    "processDurationTime": 3,
+    "processDurationTime": 1,
     "processArrivalTime": 0,
     "processPriority": 2,
     "waitTime": null,
@@ -67,8 +13,8 @@ sampleProcess = [{
 }, {
     "processOrder": 2,
     "processName": "P2",
-    "processDurationTime": 5,
-    "processArrivalTime": 2,
+    "processDurationTime": 7,
+    "processArrivalTime": 1,
     "processPriority": 6,
     "waitTime": null,
     "turnaroundTime": null,
@@ -77,8 +23,8 @@ sampleProcess = [{
 }, {
     "processOrder": 3,
     "processName": "P3",
-    "processDurationTime": 4,
-    "processArrivalTime": 1,
+    "processDurationTime": 3,
+    "processArrivalTime": 2,
     "processPriority": 3,
     "waitTime": null,
     "turnaroundTime": null,
@@ -88,8 +34,8 @@ sampleProcess = [{
 {
     "processOrder": 4,
     "processName": "P4",
-    "processDurationTime": 2,
-    "processArrivalTime": 4,
+    "processDurationTime": 6,
+    "processArrivalTime": 3,
     "processPriority": 5,
     "waitTime": null,
     "turnaroundTime": null,
@@ -99,9 +45,9 @@ sampleProcess = [{
 {
     "processOrder": 5,
     "processName": "P5",
-    "processDurationTime": 9,
-    "processArrivalTime": 6,
-    "processPriority": 7,
+    "processDurationTime": 5,
+    "processArrivalTime": 4,
+    "processPriority": 4,
     "waitTime": null,
     "turnaroundTime": null,
     "exitTime": null,
@@ -110,9 +56,9 @@ sampleProcess = [{
 {
     "processOrder": 6,
     "processName": "P6",
-    "processDurationTime": 4,
+    "processDurationTime": 15,
     "processArrivalTime": 5,
-    "processPriority": 4,
+    "processPriority": 10,
     "waitTime": null,
     "turnaroundTime": null,
     "exitTime": null,
@@ -121,9 +67,9 @@ sampleProcess = [{
 {
     "processOrder": 7,
     "processName": "P7",
-    "processDurationTime": 10,
-    "processArrivalTime": 7,
-    "processPriority": 10,
+    "processDurationTime": 8,
+    "processArrivalTime": 15,
+    "processPriority": 9,
     "waitTime": null,
     "turnaroundTime": null,
     "exitTime": null,
@@ -131,1199 +77,619 @@ sampleProcess = [{
 },
 ];
 
-class qup_process {
-    constructor(process) {
-        this.gantt = [];
-        this.process = process;
+class simulation {
+    constructor(processList) {
+
+        //Setup
+        this.process = processList;
+        this.timeQuantum = $("#timeQuantum").val();
+
+        //Summary Related
         this.totalWaitTime = 0;
         this.avgWaitTime = 0;
         this.totalTurnaroundTime = 0;
         this.avgTurnaroundTime = 0;
-        this.status = null;
+
+        //Algorithm related
         this.ready_queue = [];
-        this.show_gantt = [];
-        this.total_time = 999;
-        this.logs = [];
+        this.gantt = [];
+        this.time = 0;
+
+        //all time logs
+        this.logActions = [];
+        this.logReadyQueue = [];
+        this.logGantt = [];
+    }
+
+    //Setup
+    setProcessesTimeRemain() {
+        for (var i = 0; i < this.process.length; i++) {
+            this.process[i].timeRemain = this.process[i].processDurationTime;
+        }
+    }
+
+    addProcessToReadyQueue() {
+        //add Processes to ready_queue if 
+        for (var i = 0; i < this.process.length; i++) {
+            //console.log(process[i].processArrivalTime);
+            if (this.time >= Number(this.process[i].processArrivalTime) &&
+                !(this.ready_queue.includes(this.process[i])) &&
+                this.process[i].exitTime === null) {
+
+                this.ready_queue.push(this.process[i]);
+                var log = `Time[${this.time}] Process ${this.process[i].processName} is added to the ready queue at ${this.time}`;
+                this.pushActionsToLog(this.time, log);
+            }
+        }
+    }
+
+    allProcessTerminated() {
+        var term = this.process.every(element => element.timeRemain === 0);
+        return term;
+    }
+
+    //Gantt Chart Related
+    addProcessGantt(process, startTime, endTime) {
+        var newGantt = {
+            "type": "process",
+            "processName": process.processName,
+            "burstTime": endTime - startTime,
+            "startTime": startTime,
+            "endTime": endTime,
+            "color": process.color,
+            "processPriority": process.processPriority,
+
+        };
+        this.gantt.push(newGantt);
+    }
+
+    addBlankGantt(time) {
+        var newGantt = {
+            "type": "gap",
+            "processName": "",
+            "burstTime": 1,
+            "startTime": time,
+            "endTime": time + 1,
+            "color": "#ffffff",
+
+        };
+        this.gantt.push(newGantt);
+    }
+
+    pushReadyQueueToLog(time) {
+        this.logReadyQueue[time] = JSON.parse(JSON.stringify(this.ready_queue));
+    }
+
+    pushGanttToLog(time) {
+        this.logGantt[time] = JSON.parse(JSON.stringify(this.gantt));
+    }
+
+    pushActionsToLog(time, log) {
+        if (this.logActions[time] !== undefined) {
+            this.logActions[time].push(log);
+        } else {
+            this.logActions[time] = [];
+            this.logActions[time].push(log);
+        }
+    }
+
+    addExitTimeToProcess(name, time) {
+        var Process_index = findWithAttr(this.process, "processName", name);
+        this.process[Process_index].exitTime = time;
+        this.process[Process_index].timeRemain = 0;
+    }
+
+    removeProcessFromReadyQueue(name) {
+        var Process_index = findWithAttr(this.ready_queue, "processName", name);
+        this.ready_queue.splice(Process_index, 1);
+    }
+
+    reduceTimeRemainByOne(name) {
+        var Process_index = findWithAttr(this.process, "processName", name);
+        this.process[Process_index].timeRemain -= 1;
+    }
+
+    getTimeRemain(name) {
+        var Process_index = findWithAttr(this.process, "processName", name);
+        return this.process[Process_index].timeRemain;
     }
 
 };
 
-//
-class priorityPreemptiveLargeIsLow extends qup_process {
-    execute(process) {
-        var time = 0;
-        var ready_queue = [];
-        var total_time = this.total_time;
-        var log_array = [];
+class priorityNonPreemptiveLargeIsLow extends simulation {
 
+    execute() {
+        this.setProcessesTimeRemain();
+        while (!this.allProcessTerminated()) {
 
-        this.logs[time] = [];
+            this.addProcessToReadyQueue();
+            this.pushReadyQueueToLog(this.time);
 
-        //assign remaining time to the duration for calcualtion
-        for (var i = 0; i < process.length; i++) {
-            process[i].timeRemain = process[i].processDurationTime;
-        }
+            if (this.ready_queue.length > 0) {
 
-        //console.log(total_time);
-        while (time < total_time) {
+                this.ready_queue.sort(sortByProperty("processPriority"));
 
-            console.log("The Time Now is: " + time);
+                var executionTime = Number(this.ready_queue[0].processDurationTime);
+                var startTime = this.time;
+                var endTime = this.time + executionTime;
 
+                this.addExitTimeToProcess(this.ready_queue[0].processName, endTime);
 
-            //add Processes to ready_queue if 
-            for (var i = 0; i < process.length; i++) {
+                var log = `Time[${startTime}]: Process ${this.ready_queue[0].processName} starts running at ${startTime}`;
+                this.pushActionsToLog(startTime, log);
 
-                //console.log(process[i].processArrivalTime);
-                if (time >= Number(process[i].processArrivalTime) &&
-                    !(ready_queue.includes(process[i])) &&
-                    process[i].timeRemain > 0) {
+                this.addProcessGantt(this.ready_queue[0], this.time, endTime);
 
-                    var log = "Time=" + time + ", process: " + process[i].processName + " is added to ready queue";
-                    this.logs[time].push(log);
+                var log = `Time[${endTime}]: Process ${this.ready_queue[0].processName} terminated at ${endTime}`;
+                this.pushActionsToLog(endTime, log);
 
+                this.ready_queue.splice(0, 1);
+                this.pushGanttToLog(startTime);
 
+                this.time = endTime;
 
-                    ready_queue.push(process[i]);
+            } else {
+                if (this.allProcessTerminated()) {
+                    break;
+                } else {
+                    this.addBlankGantt(this.time);
+                    this.time++;
                 }
             }
+        }
 
-            ready_queue.sort(sortByProperty("processPriority"));
+    }
 
-            //Push Ready Queue to object for showing
-            this.ready_queue[time] = JSON.parse(JSON.stringify(ready_queue));
-            this.show_gantt[time] = JSON.parse(JSON.stringify(this.gantt));
-            //console.log(this.show_gantt);
-            //console.log(this.ready_queue);
+    run() {
+        drawGantt(this.logGantt[this.logGantt.length - 1]);
+    }
+}
 
+class priorityNonPreemptiveLargeIsHigh extends simulation {
 
-            if (ready_queue.length > 0) {
+    execute() {
+        this.setProcessesTimeRemain();
+        while (!this.allProcessTerminated()) {
 
-                var job_srt = ready_queue[0];
-                var job_srt_time = job_srt.timeRemain;
-                var job_start_time = time;
-                var exec_time = 0;
+            this.addProcessToReadyQueue();
+            this.pushReadyQueueToLog(this.time);
 
+            if (this.ready_queue.length > 0) {
 
-                while (exec_time < job_srt_time) {
-                    console.log("The Time Now is: " + time);
+                this.ready_queue.sort(sortByPropertyRevese("processPriority"));
 
+                var executionTime = Number(this.ready_queue[0].processDurationTime);
+                var startTime = this.time;
+                var endTime = this.time + executionTime;
 
-                    //add Processes to ready queue During simulation
-                    for (var i = 0; i < process.length; i++) {
+                this.addExitTimeToProcess(this.ready_queue[0].processName, endTime);
 
-                        if (time >= Number(process[i].processArrivalTime) &&
-                            !(ready_queue.includes(process[i]))) {
+                var log = `Time[${startTime}]: Process ${this.ready_queue[0].processName} starts running at ${startTime}`;
+                this.pushActionsToLog(startTime, log);
 
-                            if (process[i].timeRemain > 0) {
-                                ready_queue.push(process[i]);
-                                var log = "Time=" + time + ", process: " + process[i].processName + " is added to ready queue";
-                                this.logs[time].push(log);
-                            }
+                this.addProcessGantt(this.ready_queue[0], this.time, endTime);
 
-                        }
-                    }
+                var log = `Time[${endTime}]: Process ${this.ready_queue[0].processName} terminated at ${endTime}`;
+                this.pushActionsToLog(endTime, log);
 
+                this.ready_queue.splice(0, 1);
+                this.pushGanttToLog(startTime);
 
-                    ready_queue.sort(sortByProperty("processPriority"));
+                this.time = endTime;
 
+            } else {
+                if (this.allProcessTerminated()) {
+                    break;
+                } else {
+                    this.addBlankGantt(this.time);
+                    this.time++;
+                }
+            }
+        }
 
-                    if (ready_queue[0] !== job_srt) {
+    }
 
+    run() {
+        drawGantt(this.logGantt[this.logGantt.length - 1]);
+    }
+}
 
-                        var index = findWithAttr(ready_queue, "processName", job_srt.processName);
-                        if (ready_queue[index].timeRemain === 0) {
+class priorityPreemptiveLargeIsLow extends simulation {
+    execute() {
+        this.setProcessesTimeRemain();
+        while (!this.allProcessTerminated()) {
 
-                            var log = "Time=" + time + ", process: " + process[i].processName + " terminated.";
-                            this.logs[time].push(log);
+            this.addProcessToReadyQueue();
+            this.pushReadyQueueToLog(this.time);
 
-                            //Add End time of process for calculation
-                            var Process_index = findWithAttr(process, "processName", ready_queue[index].processName);
-                            process[Process_index].exitTime = time;
+            if (this.ready_queue.length > 0) {
 
-                            var newGantt = {
-                                "type": "process",
-                                "processName": ready_queue[index].processName,
-                                "burstTime": time - job_start_time,
-                                "startTime": job_start_time,
-                                "endTime": time,
-                                "color": ready_queue[index].color,
-                                "processPriority": ready_queue[index].processPriority,
+                this.ready_queue.sort(sortByProperty("processPriority"));
 
-                            };
-                            this.gantt.push(newGantt);
-                            ready_queue.splice(index, 1);
+                var priorJob = this.ready_queue[0];
+                var endTime = this.time + Number(this.getTimeRemain(this.ready_queue[0].processName));
+                var startTime = this.time;
 
-                        } else {
+                var log = `Time[${startTime}]: Process ${this.ready_queue[0].processName} starts running at ${startTime} (Priority: ${this.ready_queue[0].processPriority})`;
+                this.pushActionsToLog(startTime, log);
 
-                            //console.log(job_srt.processName + " starts from " + job_start_time + " is done at " + time);
-                            var log = "Time=" + time + ", process: " + job_srt + " stopped." + ready_queue[0] + " has higher priority of " + job_srt.processPriority;
+                while (this.time < endTime) {
+                    this.addProcessToReadyQueue();
+                    this.pushReadyQueueToLog(this.time);
+                    this.ready_queue.sort(sortByProperty("processPriority"));
 
-                            this.logs[time].push(log);
-
-                            var newGantt = {
-                                "type": "process",
-                                "processName": job_srt.processName,
-                                "burstTime": time - job_start_time,
-                                "startTime": job_start_time,
-                                "endTime": time,
-                                "color": job_srt.color,
-                                "processPriority": job_srt.processPriority,
-
-                            };
-                            this.gantt.push(newGantt);
-                        }
-
-
+                    if (this.ready_queue[0] !== priorJob) {
                         break;
-                    } else if (ready_queue[0] === job_srt) {
-
-                        var index = findWithAttr(ready_queue, "processName", job_srt.processName);
-                        ready_queue[index].timeRemain -= 1;
-
-                        time++;
-                        exec_time++;
-                        this.logs[time] = [];
-
-                        if (ready_queue[index].timeRemain === 0) {
-
-                            //console.log(ready_queue[index].processName + " starts from " + job_start_time + " is done at " + time);
-                            log = "Time=" + time + ", process: " + ready_queue[index].processName + " terminated.";
-                            this.logs[time].push(log);
-
-                            //Add End time of process for calculation
-                            var Process_index = findWithAttr(process, "processName", ready_queue[index].processName);
-                            process[Process_index].exitTime = time;
-
-                            var newGantt = {
-                                "type": "process",
-                                "processName": ready_queue[index].processName,
-                                "burstTime": time - job_start_time,
-                                "startTime": job_start_time,
-                                "endTime": time,
-                                "color": ready_queue[index].color,
-                                "processPriority": ready_queue[index].processPriority,
-
-                            };
-                            this.gantt.push(newGantt);
-                            ready_queue.splice(index, 1);
-                        }
-
-
-
                     } else {
+                        this.reduceTimeRemainByOne(priorJob.processName);
+                        this.time++;
+                    }
+                }
+
+                if (this.getTimeRemain(priorJob.processName) == 0) {
+
+                    this.addExitTimeToProcess(priorJob.processName, this.time);
+                    this.removeProcessFromReadyQueue(priorJob.processName);
+                    var log = `Time[${this.time}]: Process ${priorJob.processName} terminated at ${this.time}`;
+                    this.pushActionsToLog(this.time, log);
+
+                } else {
+                    var log = `Time[${this.time}]: Process ${priorJob.processName} stopped at ${this.time} (Priority : ${priorJob.processPriority})`;
+                    this.pushActionsToLog(this.time, log);
+
+                    if (this.ready_queue.length > 0) {
+                        var log = `Time[${this.time}]: Process ${this.ready_queue[0].processName} has higher priority (Priority: ${this.ready_queue[0].processPriority})`;
+                        this.pushActionsToLog(this.time, log);
+                    }
+                }
+
+                this.addProcessGantt(priorJob, startTime, this.time);
+                this.pushGanttToLog(startTime);
+                
+            } else {
+                if (this.allProcessTerminated()) {
+                    break;
+                } else {
+                    this.addBlankGantt(this.time);
+                    this.time++;
+                }
+            }
+        }
+
+    }
+
+    run() {
+        drawGantt(this.logGantt[this.logGantt.length - 1]);
+    }
+}
+
+class priorityPreemptiveLargeIsHigh extends simulation {
+    execute() {
+        this.setProcessesTimeRemain();
+        while (!this.allProcessTerminated()) {
+
+            this.addProcessToReadyQueue();
+            this.pushReadyQueueToLog(this.time);
+
+            if (this.ready_queue.length > 0) {
+
+                this.ready_queue.sort(sortByPropertyRevese("processPriority"));
+
+                var priorJob = this.ready_queue[0];
+                var endTime = this.time + Number(this.getTimeRemain(this.ready_queue[0].processName));
+                var startTime = this.time;
+
+                var log = `Time[${startTime}]: Process ${this.ready_queue[0].processName} starts running at ${startTime} (Priority: ${this.ready_queue[0].processPriority})`;
+                this.pushActionsToLog(startTime, log);
+
+                while (this.time < endTime) {
+                    this.addProcessToReadyQueue();
+                    this.pushReadyQueueToLog(this.time);
+                    this.ready_queue.sort(sortByPropertyRevese("processPriority"));
+
+                    if (this.ready_queue[0] !== priorJob) {
                         break;
-                    }
-
-                }
-
-
-            } else {
-
-                var allProcessDone;
-                for (var i = 0; i < process.length; i++) {
-                    if (process[i].timeRemain > 0) {
-                        allProcessDone = false;
-
                     } else {
-                        allProcessDone = true;
+                        this.reduceTimeRemainByOne(priorJob.processName);
+                        this.time++;
                     }
                 }
 
-                //console.log(ready_queue[index].processName + " starts from " + job_start_time + " is done at " + time);
-                log = "Time=" + time + ", ALL processes terminated. Simulation Done.";
-                log_array.push(log);
-                this.logs[time] = log_array;
-                log_array = [];
+                if (this.getTimeRemain(priorJob.processName) == 0) {
 
-                if (allProcessDone === false) {
-
-
-                    var newGantt = {
-                        "type": "gap",
-                        "processName": "",
-                        "burstTime": 1,
-                        "startTime": time,
-                        "endTime": time + 1,
-                        "color": "#ffffff",
-
-                    };
-                    this.gantt.push(newGantt);
-
+                    this.addExitTimeToProcess(priorJob.processName, this.time);
+                    this.removeProcessFromReadyQueue(priorJob.processName);
+                    var log = `Time[${this.time}]: Process ${priorJob.processName} terminated at ${this.time}`;
+                    this.pushActionsToLog(this.time, log);
 
                 } else {
+                    var log = `Time[${this.time}]: Process ${priorJob.processName} stopped at ${this.time} (Priority : ${priorJob.processPriority})`;
+                    this.pushActionsToLog(this.time, log);
 
-
-                    break;
+                    if (this.ready_queue.length > 0) {
+                        var log = `Time[${this.time}]: Process ${this.ready_queue[0].processName} has higher priority (Priority: ${this.ready_queue[0].processPriority})`;
+                        this.pushActionsToLog(this.time, log);
+                    }
                 }
 
-                time++;
+                this.addProcessGantt(priorJob, startTime, this.time);
+                this.pushGanttToLog(startTime);
+                
+            } else {
+                if (this.allProcessTerminated()) {
+                    break;
+                } else {
+                    this.addBlankGantt(this.time);
+                    this.time++;
+                }
             }
-            //end of loop
         }
+
     }
 
     run() {
-        //this.execute(this.process);
-        drawGantt(this.gantt);
+        drawGantt(this.logGantt[this.logGantt.length - 1]);
     }
 }
 
-//ok
-class priorityNonPreemptiveLargeIsLow extends qup_process {
-    execute(process) {
-        var time = 0;
-        var ready_queue = [];
-        var total_time = this.total_time;
+class shortestJobFirst extends simulation {
+    execute() {
+        this.setProcessesTimeRemain();
+        while (!this.allProcessTerminated()) {
 
-        for (var i = 0; i < process.length; i++) {
-            process[i].timeRemain = process[i].processDurationTime;
-        }
+            this.addProcessToReadyQueue();
+            this.pushReadyQueueToLog(this.time);
 
-        //console.log(total_time);
-        while (time < total_time) {
+            if (this.ready_queue.length > 0) {
 
-            console.log("The Time Now is: " + time);
+                this.ready_queue.sort(sortByProperty("processDurationTime"));
 
-            //add Processes to ready_queue if 
-            for (var i = 0; i < process.length; i++) {
-                //console.log(process[i].processArrivalTime);
-                if (time >= Number(process[i].processArrivalTime) &&
-                    !(ready_queue.includes(process[i])) &&
-                    process[i].timeRemain > 0) {
+                var executionTime = Number(this.ready_queue[0].processDurationTime);
+                var startTime = this.time;
+                var endTime = this.time + executionTime;
 
-                    ready_queue.push(process[i]);
+                this.addExitTimeToProcess(this.ready_queue[0].processName, endTime);
 
-                }
-            }
+                var log = `Time[${startTime}]: Process ${this.ready_queue[0].processName} starts running at ${startTime}`;
+                this.pushActionsToLog(startTime, log);
 
-            //Push Ready Queue to object for showing
-            this.ready_queue[time] = JSON.parse(JSON.stringify(ready_queue));
-            this.show_gantt[time] = JSON.parse(JSON.stringify(this.gantt));
-            console.log(this.show_gantt);
-            console.log(this.ready_queue);
+                this.addProcessGantt(this.ready_queue[0], this.time, endTime);
 
+                var log = `Time[${endTime}]: Process ${this.ready_queue[0].processName} terminated at ${endTime}`;
+                this.pushActionsToLog(endTime, log);
 
-            if (ready_queue.length > 0) {
+                this.ready_queue.splice(0, 1);
+                this.pushGanttToLog(startTime);
 
-                ready_queue.sort(sortByProperty("processPriority"));
-
-                var temp_time = Number(ready_queue[0].processDurationTime);
-
-                console.log("Process: " + ready_queue[0].processName + " Ran for " + temp_time + " and its done");
-
-                var newGantt = {
-                    "type": "process",
-                    "processName": ready_queue[0].processName,
-                    "burstTime": temp_time,
-                    "startTime": time,
-                    "endTime": time + temp_time,
-                    "color": ready_queue[0].color,
-                    "processPriority": ready_queue[0].processPriority,
-
-                };
-                this.gantt.push(newGantt);
-
-                process[findWithAttr(process, "processName", ready_queue[0].processName)].timeRemain = 0;
-
-                //Add End time of process for calculation
-                var Process_index = findWithAttr(process, "processName", ready_queue[0].processName);
-                process[Process_index].exitTime = time + temp_time;
-
-                ready_queue.splice(0, 1);
-
-                time = time + temp_time;
+                this.time = endTime;
 
             } else {
-
-                var allProcessDone;
-                for (var i = 0; i < process.length; i++) {
-                    if (process[i].timeRemain > 0) {
-                        allProcessDone = false;
-
-                    } else {
-                        allProcessDone = true;
-                    }
-                }
-
-                if (allProcessDone === false) {
-                    var newGantt = {
-                        "type": "gap",
-                        "processName": "",
-                        "burstTime": 1,
-                        "startTime": time,
-                        "endTime": time + 1,
-                        "color": "#ffffff",
-
-                    };
-                    this.gantt.push(newGantt);
-
-
-                } else {
+                if (this.allProcessTerminated()) {
                     break;
+                } else {
+                    this.addBlankGantt(this.time);
+                    this.time++;
                 }
-
-                time++;
             }
-            //end of loop
         }
+
     }
 
     run() {
-        drawGantt(this.gantt);
+        drawGantt(this.logGantt[this.logGantt.length - 1]);
     }
 }
 
-//ok
-class priorityPreemptiveLargeIsHigh extends qup_process {
-    execute(process) {
-        var time = 0;
-        var ready_queue = [];
-        var total_time = this.total_time;
+class shortestRemainingTime extends simulation {
+    execute() {
+        this.setProcessesTimeRemain();
+        while (!this.allProcessTerminated()) {
 
-        this.logs[time] = [];
+            this.addProcessToReadyQueue();
+            this.pushReadyQueueToLog(this.time);
 
-        //assign remaining time to the duration for calcualtion
-        for (var i = 0; i < process.length; i++) {
-            process[i].timeRemain = process[i].processDurationTime;
-        }
+            if (this.ready_queue.length > 0) {
 
-        //console.log(total_time);
-        while (time < total_time) {
-            console.log("The Time Now is: " + time);
+                this.ready_queue.sort(sortByProperty("timeRemain"));
 
-            //add Processes to ready_queue if 
-            for (var i = 0; i < process.length; i++) {
+                var srtJob = this.ready_queue[0];
+                var endTime = this.time + Number(this.getTimeRemain(this.ready_queue[0].processName));
+                var startTime = this.time;
 
-                //console.log(process[i].processArrivalTime);
-                if (time >= Number(process[i].processArrivalTime) &&
-                    !(ready_queue.includes(process[i])) &&
-                    process[i].timeRemain > 0) {
+                var log = `Time[${startTime}]: Process ${this.ready_queue[0].processName} starts running at ${startTime} (Remaining Time: ${this.ready_queue[0].timeRemain})`;
+                this.pushActionsToLog(startTime, log);
 
+                while (this.time < endTime) {
+                    this.addProcessToReadyQueue();
+                    this.pushReadyQueueToLog(this.time);
+                    this.ready_queue.sort(sortByProperty("timeRemain"));
 
-                    ready_queue.push(process[i]);
-                    var log = "Time=" + time + ", process: " + process[i].processName + " is added to ready queue";
-                    this.logs[time].push(log);
-                }
-            }
-
-            ready_queue.sort(sortByPropertyRevese("processPriority"));
-
-            //Push Ready Queue to object for showing
-            this.ready_queue[time] = JSON.parse(JSON.stringify(ready_queue));
-            this.show_gantt[time] = JSON.parse(JSON.stringify(this.gantt));
-            //console.log(this.show_gantt);
-            console.log(this.ready_queue);
-
-
-            if (ready_queue.length > 0) {
-
-                var job_srt = ready_queue[0];
-                var job_srt_time = job_srt.timeRemain;
-                var job_start_time = time;
-                var exec_time = 0;
-
-
-                while (exec_time < job_srt_time) {
-                    console.log("The Time Now is: " + time);
-
-                    log = "Time=" + time + ", process: " + ready_queue[0].processName + " is running.";
-                    this.logs[time].push(log);
-
-                    //add Processes to ready queue
-                    for (var i = 0; i < process.length; i++) {
-                        //console.log("Time remain for " + process[i].processName + " is " + process[i].timeRemain);
-                        if (time >= Number(process[i].processArrivalTime) &&
-                            !(ready_queue.includes(process[i]))) {
-
-                            if (process[i].timeRemain > 0) {
-                                ready_queue.push(process[i]);
-                                var log = "Time=" + time + ", process: " + process[i].processName + " is added to ready queue";
-                                this.logs[time].push(log);
-                            }
-
-                        }
-                    }
-
-
-                    ready_queue.sort(sortByPropertyRevese("processPriority"));
-
-
-                    if (ready_queue[0] !== job_srt) {
-
-
-                        var index = findWithAttr(ready_queue, "processName", job_srt.processName);
-                        if (ready_queue[index].timeRemain === 0) {
-                            //console.log(ready_queue[index].processName + " starts from " + job_start_time + " is done at " + time);
-                            var log = "Time=" + time + ", process: " + ready_queue[index].processName + " terminated.";
-                            this.logs[time].push(log);
-
-                            var newGantt = {
-                                "type": "process",
-                                "processName": ready_queue[index].processName,
-                                "burstTime": time - job_start_time,
-                                "startTime": job_start_time,
-                                "endTime": time,
-                                "color": ready_queue[index].color,
-                                "processPriority": ready_queue[index].processPriority,
-                            };
-                            this.gantt.push(newGantt);
-                            ready_queue.splice(index, 1);
-                        } else {
-                            console.log(job_srt.processName + " starts from " + job_start_time + " is done at " + time);
-
-                            var log = "Time=" + time + ", process: " + job_srt.processName + " stopped. Process " + ready_queue[0].processName + " has higher priority of " + job_srt.processPriority;
-                            this.logs[time].push(log);
-
-                            var newGantt = {
-                                "type": "process",
-                                "processName": job_srt.processName,
-                                "burstTime": time - job_start_time,
-                                "startTime": job_start_time,
-                                "endTime": time,
-                                "color": job_srt.color,
-                                "processPriority": job_srt.processPriority,
-
-                            };
-                            this.gantt.push(newGantt);
-                        }
-
-
+                    if (this.ready_queue[0] !== srtJob) {
                         break;
-                    } else if (ready_queue[0] === job_srt) {
-
-                        var index = findWithAttr(ready_queue, "processName", job_srt.processName);
-                        ready_queue[index].timeRemain -= 1;
-
-                        time++;
-                        exec_time++;
-                        this.logs[time] = [];
-
-                        if (ready_queue[index].timeRemain === 0) {
-                            console.log(ready_queue[index].processName + " starts from " + job_start_time + " is done at " + time);
-                            log = "Time=" + time + ", process: " + ready_queue[index].processName + " terminated.";
-                            this.logs[time].push(log);
-
-                            //Add End time of process for calculation
-                            var Process_index = findWithAttr(process, "processName", ready_queue[index].processName);
-                            process[Process_index].exitTime = time;
-
-                            var newGantt = {
-                                "type": "process",
-                                "processName": ready_queue[index].processName,
-                                "burstTime": time - job_start_time,
-                                "startTime": job_start_time,
-                                "endTime": time,
-                                "color": ready_queue[index].color,
-                                "processPriority": ready_queue[index].processPriority,
-
-                            };
-                            this.gantt.push(newGantt);
-                            ready_queue.splice(index, 1);
-                        }
-
-
                     } else {
-                        break;
-                    }
-
-                }
-
-
-            } else {
-
-                var allProcessDone;
-                for (var i = 0; i < process.length; i++) {
-                    if (process[i].timeRemain > 0) {
-                        allProcessDone = false;
-
-                    } else {
-                        allProcessDone = true;
+                        this.reduceTimeRemainByOne(srtJob.processName);
+                        this.time++;
                     }
                 }
 
+                if (this.getTimeRemain(srtJob.processName) == 0) {
 
-                if (allProcessDone === false) {
-                    var newGantt = {
-                        "type": "gap",
-                        "processName": "",
-                        "burstTime": 1,
-                        "startTime": time,
-                        "endTime": time + 1,
-                        "color": "#ffffff",
-
-                    };
-                    this.gantt.push(newGantt);
-
+                    this.addExitTimeToProcess(srtJob.processName, this.time);
+                    this.removeProcessFromReadyQueue(srtJob.processName);
+                    var log = `Time[${this.time}]: Process ${srtJob.processName} terminated at ${this.time}`;
+                    this.pushActionsToLog(this.time, log);
 
                 } else {
+                    var log = `Time[${this.time}]: Process ${srtJob.processName} stopped at ${this.time} (Remaining Time: ${srtJob.timeRemain})`;
+                    this.pushActionsToLog(this.time, log);
 
-                    var log = "Time=" + time + ", ALL processes terminated. Simulation Done.";
-                    this.logs[time].push(log);
-                    //log_array = [];
-
-                    break;
+                    if (this.ready_queue.length > 0) {
+                        var log = `Time[${this.time}]: Process ${this.ready_queue[0].processName} has shorter remaining time (Remaining Time: ${this.ready_queue[0].timeRemain})`;
+                        this.pushActionsToLog(this.time, log);
+                    }
                 }
 
-                time++;
+                this.addProcessGantt(srtJob, startTime, this.time);
+                this.pushGanttToLog(startTime);
+
+            } else {
+                if (this.allProcessTerminated()) {
+                    break;
+                } else {
+                    this.addBlankGantt(this.time);
+                    this.time++;
+                }
             }
-            //end of loop
         }
+
     }
 
     run() {
-        //this.execute(this.process);
-        drawGantt(this.gantt);
+        drawGantt(this.logGantt[this.logGantt.length - 1]);
     }
 }
 
-//Test ok
-class priorityNonPreemptiveLargeIsHigh extends qup_process {
-    execute(process) {
-        var time = 0;
-        var ready_queue = [];
-        var total_time = this.total_time;
+class roundRobin extends simulation {
+    execute() {
+        this.setProcessesTimeRemain();
+        while (!this.allProcessTerminated()) {
 
-        for (var i = 0; i < process.length; i++) {
-            process[i].timeRemain = process[i].processDurationTime;
-        }
+            this.addProcessToReadyQueue();
+            this.pushReadyQueueToLog(this.time);
 
-        //console.log(total_time);
-        while (time < total_time) {
+            if (this.ready_queue.length > 0) {
 
-            console.log("The Time Now is: " + time);
+                if (this.ready_queue[0].timeRemain > Number(this.timeQuantum)) {
 
-            //add Processes to ready_queue if 
-            for (var i = 0; i < process.length; i++) {
-                //console.log(process[i].processArrivalTime);
-                if (time >= Number(process[i].processArrivalTime) &&
-                    !(ready_queue.includes(process[i])) &&
-                    process[i].timeRemain > 0) {
+                    var startTime = this.time;
+                    var endTime = this.time + Number(this.timeQuantum);
+                    var log = `Time[${startTime}]: Process ${this.ready_queue[0].processName} starts running at ${startTime}`;
+                    this.pushActionsToLog(startTime, log);
 
-                    ready_queue.push(process[i]);
+                    this.addProcessGantt(this.ready_queue[0], this.time, endTime);
+                    this.pushGanttToLog(startTime);
 
-                }
-            }
+                    this.ready_queue[0].timeRemain -= this.timeQuantum;
 
-            //Push Ready Queue to object for showing
-            this.ready_queue[time] = JSON.parse(JSON.stringify(ready_queue));
-            this.show_gantt[time] = JSON.parse(JSON.stringify(this.gantt));
-            //console.log(this.show_gantt);
-            //console.log(this.ready_queue);
+                    var log = `Time[${endTime}]: Process ${this.ready_queue[0].processName} stopped at ${endTime}`;
+                    this.pushActionsToLog(endTime, log);
 
+                    this.ready_queue.push(this.ready_queue[0]);
+                    this.ready_queue.splice(0, 1);
 
-            if (ready_queue.length > 0) {
-
-                ready_queue.sort(sortByPropertyRevese("processPriority"));
-
-                var temp_time = Number(ready_queue[0].processDurationTime);
-
-                console.log("Process: " + ready_queue[0].processName + " Ran for " + temp_time + " and its done");
-
-                var newGantt = {
-                    "type": "process",
-                    "processName": ready_queue[0].processName,
-                    "burstTime": temp_time,
-                    "startTime": time,
-                    "endTime": time + temp_time,
-                    "color": ready_queue[0].color,
-                    "processPriority": ready_queue[0].processPriority,
-
-                };
-                this.gantt.push(newGantt);
-
-                process[findWithAttr(process, "processName", ready_queue[0].processName)].timeRemain = 0;
-                //Add End time of process for calculation
-                var Process_index = findWithAttr(process, "processName", ready_queue[0].processName);
-                process[Process_index].exitTime = time + temp_time;
-
-                ready_queue.splice(0, 1);
-
-                time = time + temp_time;
-
-            } else {
-
-                var allProcessDone;
-                for (var i = 0; i < process.length; i++) {
-                    if (process[i].timeRemain > 0) {
-                        allProcessDone = false;
-
-                    } else {
-                        allProcessDone = true;
-                    }
-                }
-
-                if (allProcessDone === false) {
-                    var newGantt = {
-                        "type": "gap",
-                        "processName": "",
-                        "burstTime": 1,
-                        "startTime": time,
-                        "endTime": time + 1,
-                        "color": "#ffffff",
-
-                    };
-                    this.gantt.push(newGantt);
-
+                    this.time = endTime;
 
                 } else {
-                    break;
+
+                    var startTime = this.time;
+                    var endTime = this.time + this.ready_queue[0].timeRemain;
+
+                    this.addExitTimeToProcess(this.ready_queue[0].processName, endTime);
+
+                    var log = `Time[${startTime}]: Process ${this.ready_queue[0].processName} starts running at ${startTime}`;
+                    this.pushActionsToLog(startTime, log);
+
+                    this.addProcessGantt(this.ready_queue[0], this.time, endTime);
+
+                    var log = `Time[${endTime}]: Process ${this.ready_queue[0].processName} terminated at ${endTime}`;
+                    this.pushActionsToLog(endTime, log);
+
+                    this.ready_queue.splice(0, 1);
+                    this.pushGanttToLog(startTime);
+
+                    this.time = endTime;
                 }
 
-                time++;
+            } else {
+                if (this.allProcessTerminated()) {
+                    break;
+                } else {
+                    this.addBlankGantt(this.time);
+                    this.time++;
+                }
             }
-            //end of loop
         }
-    }
 
+    }
     run() {
-        drawGantt(this.gantt);
+        drawGantt(this.logGantt[this.logGantt.length - 1]);
     }
 }
 
-class shortestJobFirst extends qup_process {
-    execute(process) {
-        var time = 0;
-        var ready_queue = [];
-        var total_time = this.total_time;
+class FCFS extends simulation {
+    execute() {
+        this.setProcessesTimeRemain();
+        while (!this.allProcessTerminated()) {
 
-        for (var i = 0; i < process.length; i++) {
-            process[i].timeRemain = process[i].processDurationTime;
-        }
+            this.addProcessToReadyQueue();
+            this.pushReadyQueueToLog(this.time);
 
-        //console.log(total_time);
-        while (time < total_time) {
+            if (this.ready_queue.length > 0) {
 
-            console.log("The Time Now is: " + time);
+                this.ready_queue.sort(sortByProperty("processArrivalTime"));
 
-            //add Processes to ready_queue if 
-            for (var i = 0; i < process.length; i++) {
-                //console.log(process[i].processArrivalTime);
-                if (time >= Number(process[i].processArrivalTime) &&
-                    !(ready_queue.includes(process[i])) &&
-                    process[i].timeRemain > 0) {
+                var executionTime = Number(this.ready_queue[0].processDurationTime);
+                var startTime = this.time;
+                var endTime = this.time + executionTime;
 
-                    ready_queue.push(process[i]);
+                this.addExitTimeToProcess(this.ready_queue[0].processName, endTime);
 
-                }
-            }
+                var log = `Time[${startTime}]: Process ${this.ready_queue[0].processName} starts running at ${startTime}`;
+                this.pushActionsToLog(startTime, log);
 
-            //Push Ready Queue to object for showing
-            this.ready_queue[time] = JSON.parse(JSON.stringify(ready_queue));
-            this.show_gantt[time] = JSON.parse(JSON.stringify(this.gantt));
-            //console.log(this.show_gantt);
-            //console.log(this.ready_queue);
+                this.addProcessGantt(this.ready_queue[0], this.time, endTime);
 
+                var log = `Time[${endTime}]: Process ${this.ready_queue[0].processName} terminated at ${endTime}`;
+                this.pushActionsToLog(endTime, log);
 
-            if (ready_queue.length > 0) {
+                this.ready_queue.splice(0, 1);
+                this.pushGanttToLog(startTime);
 
-                ready_queue.sort(sortByProperty("processDurationTime"));
-
-                var temp_time = Number(ready_queue[0].processDurationTime);
-
-                console.log("Process: " + ready_queue[0].processName + " Ran for " + temp_time + " and its done");
-
-                var newGantt = {
-                    "type": "process",
-                    "processName": ready_queue[0].processName,
-                    "burstTime": temp_time,
-                    "startTime": time,
-                    "endTime": time + temp_time,
-                    "color": ready_queue[0].color,
-                    "processPriority": ready_queue[0].processPriority,
-
-                };
-                this.gantt.push(newGantt);
-
-                process[findWithAttr(process, "processName", ready_queue[0].processName)].timeRemain = 0;
-                var Process_index = findWithAttr(process, "processName", ready_queue[0].processName);
-                process[Process_index].exitTime = time + temp_time;
-
-                ready_queue.splice(0, 1);
-
-                time = time + temp_time;
+                this.time = endTime;
 
             } else {
-
-                var allProcessDone;
-                for (var i = 0; i < process.length; i++) {
-                    if (process[i].timeRemain > 0) {
-                        allProcessDone = false;
-
-                    } else {
-                        allProcessDone = true;
-                    }
-                }
-
-                if (allProcessDone === false) {
-                    var newGantt = {
-                        "type": "gap",
-                        "processName": "",
-                        "burstTime": 1,
-                        "startTime": time,
-                        "endTime": time + 1,
-                        "color": "#ffffff",
-
-                    };
-                    this.gantt.push(newGantt);
-
-
-                } else {
-
-
+                if (this.allProcessTerminated()) {
                     break;
+                } else {
+                    this.addBlankGantt(this.time);
+                    this.time++;
                 }
-
-                time++;
             }
-            //end of loop
         }
+
     }
 
     run() {
-
-        drawGantt(this.gantt);
+        drawGantt(this.logGantt[this.logGantt.length - 1]);
     }
 }
 
-class shortestRemainingTime extends qup_process {
-    execute(process) {
-        var time = 0;
-        var ready_queue = [];
-        var total_time = this.total_time;
+//Asset
+function sortByProperty(property) {
+    return function (a, b) {
+        if (a[property] > b[property])
+            return 1;
+        else if (a[property] < b[property])
+            return -1;
 
-        //assign remaining time to the duration for calcualtion
-        for (var i = 0; i < process.length; i++) {
-            process[i].timeRemain = process[i].processDurationTime;
-        }
-
-        //console.log(total_time);
-        while (time < total_time) {
-            console.log("The Time Now is: " + time);
-
-            //add Processes to ready_queue if 
-            for (var i = 0; i < process.length; i++) {
-
-                //console.log(process[i].processArrivalTime);
-                if (time >= Number(process[i].processArrivalTime) &&
-                    !(ready_queue.includes(process[i])) &&
-                    process[i].timeRemain > 0) {
-
-
-                    ready_queue.push(process[i]);
-                }
-            }
-
-            ready_queue.sort(sortByProperty("timeRemain"));
-
-            //Push Ready Queue to object for showing
-            this.ready_queue[time] = JSON.parse(JSON.stringify(ready_queue));
-            this.show_gantt[time] = JSON.parse(JSON.stringify(this.gantt));
-            //console.log(this.show_gantt);
-            //console.log(this.ready_queue);
-
-
-            if (ready_queue.length > 0) {
-
-                var job_srt = ready_queue[0];
-                var job_srt_time = job_srt.timeRemain;
-                var job_start_time = time;
-                var exec_time = 0;
-
-
-                while (exec_time < job_srt_time) {
-                    console.log("The Time Now is: " + time);
-
-                    //add Processes to ready queue
-                    for (var i = 0; i < process.length; i++) {
-                        //console.log("Time remain for " + process[i].processName + " is " + process[i].timeRemain);
-                        if (time >= Number(process[i].processArrivalTime) &&
-                            !(ready_queue.includes(process[i]))) {
-
-                            if (process[i].timeRemain > 0) {
-                                ready_queue.push(process[i]);
-                            }
-
-                        }
-                    }
-
-
-                    ready_queue.sort(sortByProperty("timeRemain"));
-
-                    if (ready_queue[0] !== job_srt) {
-
-
-                        var index = findWithAttr(ready_queue, "processName", job_srt.processName);
-                        if (ready_queue[index].timeRemain === 0) {
-                            console.log(ready_queue[index].processName + " starts from " + job_start_time + " is done at " + time);
-
-                            //add exitTime for calculation
-                            var Process_index = findWithAttr(process, "processName", ready_queue[0].processName);
-                            process[Process_index].exitTime = time;
-
-
-                            var newGantt = {
-                                "type": "process",
-                                "processName": ready_queue[index].processName,
-                                "burstTime": time - job_start_time,
-                                "startTime": job_start_time,
-                                "endTime": time,
-                                "color": ready_queue[index].color,
-                                "processPriority": ready_queue[index].processPriority,
-
-
-                            };
-                            this.gantt.push(newGantt);
-                            ready_queue.splice(index, 1);
-                        } else {
-                            console.log(job_srt.processName + " starts from " + job_start_time + " is done at " + time);
-
-                            //add exitTime for calculation
-                            var Process_index = findWithAttr(process, "processName", ready_queue[0].processName);
-                            process[Process_index].exitTime = time;
-
-                            var newGantt = {
-                                "type": "process",
-                                "processName": job_srt.processName,
-                                "burstTime": time - job_start_time,
-                                "startTime": job_start_time,
-                                "endTime": time,
-                                "color": job_srt.color,
-                                "processPriority": job_srt.processPriority,
-                            };
-                            this.gantt.push(newGantt);
-                        }
-
-
-                        break;
-                    } else if (ready_queue[0] === job_srt) {
-
-                        var index = findWithAttr(ready_queue, "processName", job_srt.processName);
-                        ready_queue[index].timeRemain -= 1;
-
-                        time++;
-                        exec_time++;
-
-                        if (ready_queue[index].timeRemain === 0) {
-                            //console.log(ready_queue[index].processName + " starts from " + job_start_time + " is done at " + time);
-
-                            var Process_index = findWithAttr(process, "processName", ready_queue[index].processName);
-                            process[Process_index].exitTime = time;
-
-                            var newGantt = {
-                                "type": "process",
-                                "processName": ready_queue[index].processName,
-                                "burstTime": time - job_start_time,
-                                "startTime": job_start_time,
-                                "endTime": time,
-                                "color": ready_queue[index].color,
-                                "processPriority": ready_queue[index].processPriority,
-
-                            };
-                            this.gantt.push(newGantt);
-                            ready_queue.splice(index, 1);
-                        }
-
-
-                    } else {
-                        break;
-                    }
-
-                }
-
-
-            } else {
-
-                var allProcessDone;
-                for (var i = 0; i < process.length; i++) {
-                    if (process[i].timeRemain > 0) {
-                        allProcessDone = false;
-
-                    } else {
-                        allProcessDone = true;
-                    }
-                }
-
-                if (allProcessDone === false) {
-                    var newGantt = {
-                        "type": "gap",
-                        "processName": "",
-                        "burstTime": 1,
-                        "startTime": time,
-                        "endTime": time + 1,
-                        "color": "#ffffff",
-
-                    };
-                    this.gantt.push(newGantt);
-
-
-                } else {
-
-
-                    break;
-                }
-
-                time++;
-            }
-            //end of loop
-        }
-    }
-
-    run() {
-        //this.execute(this.process);
-        drawGantt(this.gantt);
+        return 0;
     }
 }
 
-class round_robin extends qup_process {
-    execute(process) {
-
-        var time = 0;
-        var time_quantum = 3;
-        var ready_queue = [];
-        var total_time = this.total_time;
-
-        for (var i = 0; i < process.length; i++) {
-            total_time += process[i].processDurationTime;
-            //assign remaining time to the duration for calcualtion
-            process[i].timeRemain = process[i].processDurationTime;
-        }
-
-
-
-        //console.log(total_time);
-        while (time < total_time) {
-
-            //console.log("The Time Now is: " + time);
-
-            //add Processes to ready_queue if 
-            for (var i = 0; i < process.length; i++) {
-                //console.log(process[i].processArrivalTime);
-                if (time >= Number(process[i].processArrivalTime) &&
-                    !(ready_queue.includes(process[i])) &&
-                    process[i].timeRemain > 0) {
-
-                    ready_queue.push(process[i]);
-
-                }
-            }
-
-
-            //Push Ready Queue to object for showing
-            this.ready_queue[time] = JSON.parse(JSON.stringify(ready_queue));
-            this.show_gantt[time] = JSON.parse(JSON.stringify(this.gantt));
-            //console.log(this.show_gantt[time]);
-            //console.log(this.ready_queue[time]);
-
-
-            if (ready_queue.length > 0) {
-                if (ready_queue[0].timeRemain > time_quantum) {
-
-                    ready_queue[0].timeRemain -= time_quantum;
-
-                    var newGantt = {
-                        "type": "process",
-                        "processName": ready_queue[0].processName,
-                        "burstTime": time_quantum,
-                        "startTime": time,
-                        "endTime": time + time_quantum,
-                        "processPriority": ready_queue[0].processPriority,
-                        "color": ready_queue[0].color,
-
-                    };
-                    this.gantt.push(newGantt);
-
-
-
-                    ready_queue.push(ready_queue[0]);
-                    ready_queue.splice(0, 1);
-
-
-                    time = time + time_quantum;
-
-
-
-                } else if (ready_queue[0].timeRemain <= time_quantum) {
-
-                    var exec_time = ready_queue[0].timeRemain;
-                    ready_queue[0].timeRemain -= ready_queue[0].timeRemain;
-                    //console.log("Process: " + ready_queue[0].processName + " Ran for " + exec_time + " and its done");
-
-                    var newGantt = {
-                        "type": "process",
-                        "processName": ready_queue[0].processName,
-                        "burstTime": exec_time,
-                        "startTime": time,
-                        "endTime": time + exec_time,
-                        "processPriority": ready_queue[0].processPriority,
-                        "color": ready_queue[0].color,
-
-                    };
-
-                    var Process_index = findWithAttr(process, "processName", ready_queue[0].processName);
-                    process[Process_index].exitTime = time + exec_time;
-
-                    ready_queue.splice(0, 1);
-                    this.gantt.push(newGantt);
-
-                    time = time + exec_time;
-
-                }
-
-
-            } else {
-                var allProcessDone;
-                for (var i = 0; i < process.length; i++) {
-                    if (process[i].timeRemain > 0) {
-                        allProcessDone = false;
-
-                    } else {
-                        allProcessDone = true;
-                    }
-                }
-
-                if (allProcessDone === false) {
-                    var newGantt = {
-                        "type": "gap",
-                        "processName": "",
-                        "burstTime": 1,
-                        "startTime": time,
-                        "endTime": time + 1,
-                        "color": "#ffffff",
-
-
-                    };
-                    this.gantt.push(newGantt);
-
-
-                } else {
-
-
-                    break;
-                }
-
-
-                time++;
-            }
-
-
-
-            //end of loop
-        }
-    }
-
-
-    run() {
-        //console.log(this.process);
-
-        drawGantt(this.gantt);
-    }
-
-}
-
-
-//Test ok
-class fcfs extends qup_process {
-    execute(process) {
-        var time = 0;
-        var ready_queue = [];
-        var total_time = this.total_time;
-
-        for (var i = 0; i < process.length; i++) {
-            process[i].timeRemain = process[i].processDurationTime;
-        }
-
-        //console.log(total_time);
-        while (time < total_time) {
-
-
-            //add Processes to ready_queue if 
-            for (var i = 0; i < process.length; i++) {
-                //console.log(process[i].processArrivalTime);
-                if (time >= Number(process[i].processArrivalTime) &&
-                    !(ready_queue.includes(process[i])) &&
-                    process[i].timeRemain > 0) {
-
-                    ready_queue.push(process[i]);
-
-                }
-            }
-
-            //Push Ready Queue to object for showing
-            this.ready_queue[time] = JSON.parse(JSON.stringify(ready_queue));
-            this.show_gantt[time] = JSON.parse(JSON.stringify(this.gantt));
-
-            if (ready_queue.length > 0) {
-
-
-                ready_queue.sort(sortByProperty("processArrivalTime"));
-
-                var temp_time = Number(ready_queue[0].processDurationTime);
-
-                console.log("Process: " + ready_queue[0].processName + " Ran for " + temp_time + " and its done");
-
-                var newGantt = {
-                    "type": "process",
-                    "processName": ready_queue[0].processName,
-                    "burstTime": temp_time,
-                    "startTime": time,
-                    "endTime": time + temp_time,
-                    "color": ready_queue[0].color,
-                    "processPriority": ready_queue[0].processPriority,
-
-                };
-                this.gantt.push(newGantt);
-
-                process[findWithAttr(process, "processName", ready_queue[0].processName)].timeRemain = 0;
-                //Add End time of process for calculation
-                var Process_index = findWithAttr(process, "processName", ready_queue[0].processName);
-                process[Process_index].exitTime = time + temp_time;
-
-                ready_queue.splice(0, 1);
-
-                time = time + temp_time;
-
-            } else {
-
-                var allProcessDone;
-                for (var i = 0; i < process.length; i++) {
-                    if (process[i].timeRemain > 0) {
-                        allProcessDone = false;
-
-                    } else {
-                        allProcessDone = true;
-                    }
-                }
-
-                if (allProcessDone === false) {
-                    var newGantt = {
-                        "type": "gap",
-                        "processName": "",
-                        "burstTime": 1,
-                        "startTime": time,
-                        "endTime": time + 1,
-                        "color": "#ffffff",
-
-                    };
-                    this.gantt.push(newGantt);
-
-
-                } else {
-                    break;
-                }
-
-                time++;
-            }
-            //end of loop
-        }
-    }
-
-    run() {
-        drawGantt(this.gantt);
+function sortByPropertyRevese(property) {
+    return function (a, b) {
+        if (a[property] < b[property])
+            return 1;
+        else if (a[property] > b[property])
+            return -1;
+
+        return 0;
     }
 }
 
 
 
+//Frontend
 //Asset Variable
 var order = 1;
 
@@ -1373,7 +739,8 @@ function createProcess(processName, processDurationTime, processArrivalTime, pro
                 "color": color,
                 "waitTime": 0,
                 "turnaroundTime": 0,
-                "exitTime": 0,
+                "exitTime": null,
+
             };
 
             Process.push(newProcess);
@@ -1383,9 +750,8 @@ function createProcess(processName, processDurationTime, processArrivalTime, pro
 
     }
 
+
 }
-
-
 //Update Process
 function editProcess(processName) {
     var newName = prompt("Please Enter the new process name:");
@@ -1424,37 +790,10 @@ function calculateAllTime(process_class) {
 
 }
 
-function createCookie(name, value, days) {
-    if (days) {
-        var date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        var expires = "; expires=" + date.toGMTString();
-    }
-    else var expires = "";
-    document.cookie = name + "=" + value + expires + "; path=/";
-}
-
-function getCookie(name) {
-    var nameEQ = name + "=";
-    var ca = document.cookie.split(';');
-    for (var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
-    }
-    return null;
-}
-
-function eraseCookie(name) {
-    createCookie(name, "", -1);
-}
 
 
-//Frontend
 //Interactive buttons
 $(document).ready(function () {
-
-
 
     $('#createProcess').click(function () {
         var processName = $("#processName").val();
@@ -1466,57 +805,74 @@ $(document).ready(function () {
     });
 
     var display_time = 0;
+
     var simulation;
+
     $('#startSimulation').click(function () {
         const temp_Process = JSON.parse(JSON.stringify(Process));
 
+
         if ($("input[id='mode']:checked").val() == "rr") {
-            simulation = new round_robin(Process);
-            simulation.execute(simulation.process);
+
+            simulation = new roundRobin(Process);
+            simulation.execute();
 
         } else if ($("input[id='mode']:checked").val() == "fcfs") {
-            simulation = new fcfs(Process);
-            simulation.execute(simulation.process);
+            simulation = new FCFS(Process);
+            simulation.execute();
 
         } else if ($("input[id='mode']:checked").val() == "sjf") {
             simulation = new shortestJobFirst(Process);
-            simulation.execute(simulation.process);
+            simulation.execute();
+
 
         } else if ($("input[id='mode']:checked").val() == "srt") {
             simulation = new shortestRemainingTime(Process);
-            simulation.execute(simulation.process);
+            simulation.execute();
+
 
         } else if ($("input[id='mode']:checked").val() == "pri-nonpre") {
             simulation = new priorityNonPreemptiveLargeIsLow(Process);
-            simulation.execute(simulation.process);
+            simulation.execute();
+
         } else if ($("input[id='mode']:checked").val() == "pri-pre") {
             simulation = new priorityPreemptiveLargeIsLow(Process);
-            simulation.execute(simulation.process);
+            simulation.execute();
+
         } else if ($("input[id='mode']:checked").val() == "pri-nonpre-rev") {
             simulation = new priorityNonPreemptiveLargeIsHigh(Process);
-            simulation.execute(simulation.process);
+            simulation.execute();
+
         } else if ($("input[id='mode']:checked").val() == "pri-pre-rev") {
+
             simulation = new priorityPreemptiveLargeIsHigh(Process);
-            simulation.execute(simulation.process);
+            simulation.execute();
+
         }
 
 
         if (simulation != null) {
-            alert("Simulation is finished. \n" +
-                "You can now click Calculate All or Click Previous/Next" +
-                " to check how the algorithm works!\n" +
-                "Thanks for using qup! :)");
+            try {
 
+                alert("Simulation is finished. \n" +
+                    "You can now click Calculate All or Click Previous/Next" +
+                    " to check how the algorithm works!\n" +
+                    "Thanks for using qup! :)");
+            } catch{
+                alert("error");
+            }
         }
 
-
-
-        drawGanttForCertainTime(simulation.show_gantt, 0);
         displayCurrentTime(display_time);
         calculateAllTime(simulation);
+        drawReadyQueueForCertainTime(simulation.logReadyQueue, display_time);
+        drawGanttForCertainTime(simulation.logGantt, display_time);
+        drawLogsForCertainTime(simulation.logActions, display_time);
 
+        //Reset
         Process = [];
         Process = JSON.parse(JSON.stringify(temp_Process));
+
     });
 
     $("#sampleProcess").click(function () {
@@ -1532,10 +888,11 @@ $(document).ready(function () {
         if (simulation !== null) {
 
             simulation.run();
-            display_time = simulation.gantt[simulation.gantt.length - 1].endTime;
+            let lastGantt = simulation.logGantt[simulation.logGantt.length - 1];
+            display_time = lastGantt[lastGantt.length - 1].endTime;
             displayCurrentTime(display_time);
             displaySummary(simulation);
-            drawLogs(simulation.logs,display_time);
+            drawLogs(simulation.logActions, display_time);
         }
     });
 
@@ -1561,24 +918,25 @@ $(document).ready(function () {
         if (display_time >= 0) {
             display_time--;
             displayCurrentTime(display_time);
-            drawGanttForCertainTime(simulation.show_gantt, display_time);
-            drawLogsForCertainTime(simulation.logs, display_time);
-            drawReadyQueueForCertainTime(simulation.ready_queue, display_time);
+            drawGanttForCertainTime(simulation.logGantt, display_time);
+            drawLogsForCertainTime(simulation.logActions, display_time);
+            drawReadyQueueForCertainTime(simulation.logReadyQueue, display_time);
         } else {
             alert("there's nothing before you start the simulation lol.");
         }
     });
 
     $("#next").click(function () {
-        if (display_time >= simulation.gantt[simulation.gantt.length - 1].endTime) {
+        let lastGantt = simulation.logGantt[simulation.logGantt.length - 1];
+        if (display_time >= lastGantt[lastGantt.length - 1].endTime) {
             displaySummary(simulation);
             alert("there's nothing this far lol.");
         } else {
             display_time++;
             displayCurrentTime(display_time);
-            drawGanttForCertainTime(simulation.show_gantt, display_time);
-            drawLogsForCertainTime(simulation.logs, display_time);
-            drawReadyQueueForCertainTime(simulation.ready_queue, display_time);
+            drawGanttForCertainTime(simulation.logGantt, display_time);
+            drawLogsForCertainTime(simulation.logActions, display_time);
+            drawReadyQueueForCertainTime(simulation.logReadyQueue, display_time);
         }
     });
 
@@ -1658,6 +1016,7 @@ function drawGanttForCertainTime(gantt, time) {
                         "<div class=\"gantt-process\">" +
                         "<div class=\"gantt-name\">" + gantt[time][i].processName + "</div>" +
                         "<div class=\"gantt-burst\">(" + gantt[time][i].burstTime + ")</div>" +
+                        "<h6> Priority: " + gantt[time][i].processPriority + "</h6>" +
                         "</div>" +
                         "<div class=\"gantt-bar\" style=\"width:" + gantt[time][i].burstTime * 6 + "rem; background-color:" + gantt[time][i].color + ";\"></div>" +
                         "<div class=\"gantt-time\">" +
@@ -1705,22 +1064,28 @@ function drawReadyQueueForCertainTime(ready_queue, time) {
 
 //Logs
 function drawLogs(logs, time) {
-    var bar = "";
-    for (var t = 0; t < time; t++) {
-        for (var i = 0; i < logs[t].length; i++) {
-            bar += "<div class='row'>" + logs[t][i] + "</div>"
+    try {
+        var bar = "";
+        for (var t = 0; t < time; t++) {
+            for (var i = 0; i < logs[t].length; i++) {
+                bar += "<div class='row'>" + logs[t][i] + "</div>"
+            }
         }
-    }
-    $(".LogContainer").html(bar);
+        $(".LogContainer").html(bar);
+
+    } catch{ }
+
 }
 
 function drawLogsForCertainTime(logs, time) {
+    try {
+        var bar = "";
+        for (var i = 0; i < logs[time].length; i++) {
+            bar += "<div class='row'>" + logs[time][i] + "</div>"
+        }
+        $(".LogContainer").html(bar);
+    } catch{ }
 
-    var bar = "";
-    for (var i = 0; i < logs[time].length; i++) {
-        bar += "<div class='row'>" + logs[time][i] + "</div>"
-    }
-    $(".LogContainer").html(bar);
 
 }
 
@@ -1751,13 +1116,7 @@ function displaySummary(instance) {
 
 }
 //Asset
-function findAndRemove(array, property, value) {
-    for (var key in array) {
-        if (array[key][property] == value) {
-            array.splice(key, 1);
-        }
-    }
-}
+
 
 function findWithAttr(array, attr, value) {
     for (var i = 0; i < array.length; i += 1) {
@@ -1790,6 +1149,3 @@ function sortByPropertyRevese(property) {
         return 0;
     }
 }
-
-
-

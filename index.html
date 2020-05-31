@@ -95,8 +95,8 @@
                 </div>
                 <div class="col-lg-8 col-sm-12">
                     <H6>2. Processes</H6>
-                    <div id="processList" style="min-height:200px; max-height: 200px; overflow: scroll;">
-                        <table class="table" id="processList">
+                    <div id="processList" style="min-height:200px; max-height: 200px;">
+                        <table class="table table-striped header-fixed" id="processList">
                             <thead>
                                 <tr>
                                     <th scope="col">Name</th>
@@ -166,7 +166,10 @@
                                                     d="M5.646 10.354a.5.5 0 010-.708l8-8a.5.5 0 01.708.708l-8 8a.5.5 0 01-.708 0z"
                                                     clip-rule="evenodd" />
                                             </svg>
+                                        
                                         </a>
+                                        Time Quantum:
+                                        <input type="text" id="timeQuantum" value="3"/>
                                     </label>
                                 </div>
 
@@ -383,7 +386,7 @@
             <div class="row m-lg-3 m-sm-1">
                 <div class="col-12 ">
                     <h6>Logs</h6>
-                    <div class="LogContainer m-3" style="padding-left:1em; max-height: 10em; overflow-y: scroll;">
+                    <div class="LogContainer m-3" style="padding-left:1em; height:200px; overflow-y: scroll;">
 
                     </div>
                 </div>
