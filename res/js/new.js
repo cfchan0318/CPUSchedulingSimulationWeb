@@ -179,6 +179,21 @@ class simulation {
         this.process[Process_index].timeRemain = 0;
     }
 
+    removeProcessFromReadyQueue(name) {
+        var Process_index = findWithAttr(this.ready_queue, "processName", name);
+        this.ready_queue.splice(Process_index, 1);
+    }
+
+    reduceTimeRemainByOne(name) {
+        var Process_index = findWithAttr(this.process, "processName", name);
+        this.process[Process_index].timeRemain -= 1;
+    }
+
+    getTimeRemain(name) {
+        var Process_index = findWithAttr(this.process, "processName", name);
+        return this.process[Process_index].timeRemain;
+    }
+
 };
 
 class priorityNonPreemptiveLargeIsLow extends simulation {
@@ -338,27 +353,48 @@ class shortestRemainingTime extends simulation {
 
             if (this.ready_queue.length > 0) {
 
-                this.ready_queue.sort(sortByProperty("processDurationTime"));
+                this.ready_queue.sort(sortByProperty("timeRemain"));
 
-                var executionTime = Number(this.ready_queue[0].processDurationTime);
+                var srtJob = this.ready_queue[0];
+                var endTime = this.time + Number(this.getTimeRemain(this.ready_queue[0].processName));
                 var startTime = this.time;
-                var endTime = this.time + executionTime;
 
-                this.addExitTimeToProcess(this.ready_queue[0].processName, endTime);
-
-                var log = `Time[${startTime}]: Process ${this.ready_queue[0].processName} starts running at ${startTime}`;
+                var log = `Time[${startTime}]: Process ${this.ready_queue[0].processName} starts running at ${startTime} (Remaining Time: ${this.ready_queue[0].timeRemain})`;
                 this.pushActionsToLog(startTime, log);
 
-                this.addProcessGantt(this.ready_queue[0], this.time, endTime);
+                while (this.time < endTime) {
+                    this.addProcessToReadyQueue();
+                    this.pushReadyQueueToLog(this.time);
+                    this.ready_queue.sort(sortByProperty("timeRemain"));
 
-                var log = `Time[${endTime}]: Process ${this.ready_queue[0].processName} terminated at ${endTime}`;
-                this.pushActionsToLog(endTime, log);
+                    if (this.ready_queue[0] !== srtJob) {
+                        break;
+                    } else {
+                        this.reduceTimeRemainByOne(srtJob.processName);
+                        this.time++;
+                    }
+                }
 
-                this.ready_queue.splice(0, 1);
+                if (this.getTimeRemain(srtJob.processName) == 0) {
+
+                    this.addExitTimeToProcess(srtJob.processName, this.time);
+                    this.removeProcessFromReadyQueue(srtJob.processName);
+                    var log = `Time[${this.time}]: Process ${srtJob.processName} terminated at ${this.time}`;
+                    this.pushActionsToLog(this.time, log);
+
+                } else {
+                    var log = `Time[${this.time}]: Process ${srtJob.processName} stopped at ${this.time} (Remaining Time: ${srtJob.timeRemain})`;
+                    this.pushActionsToLog(this.time, log);
+
+                    if (this.ready_queue.length > 0) {
+                        var log = `Time[${this.time}]: Process ${this.ready_queue[0].processName} has shorter remaining time (Remaining Time: ${this.ready_queue[0].timeRemain})`;
+                        this.pushActionsToLog(this.time, log);
+                    }
+                }
+
+                this.addProcessGantt(srtJob, startTime, this.time);
                 this.pushGanttToLog(startTime);
-
-                this.time = endTime;
-
+                
             } else {
                 if (this.allProcessTerminated()) {
                     break;
@@ -402,7 +438,7 @@ class roundRobin extends simulation {
                     this.pushActionsToLog(endTime, log);
 
                     this.ready_queue.push(this.ready_queue[0]);
-                    this.ready_queue.splice(0,1);
+                    this.ready_queue.splice(0, 1);
 
                     this.time = endTime;
 
@@ -421,7 +457,7 @@ class roundRobin extends simulation {
                     var log = `Time[${endTime}]: Process ${this.ready_queue[0].processName} terminated at ${endTime}`;
                     this.pushActionsToLog(endTime, log);
 
-                    this.ready_queue.splice(0,1);
+                    this.ready_queue.splice(0, 1);
                     this.pushGanttToLog(startTime);
 
                     this.time = endTime;
@@ -566,7 +602,8 @@ function createProcess(processName, processDurationTime, processArrivalTime, pro
                 "color": color,
                 "waitTime": 0,
                 "turnaroundTime": 0,
-                "exitTime": 0,
+                "exitTime": null,
+
             };
 
             Process.push(newProcess);
@@ -639,10 +676,10 @@ $(document).ready(function () {
 
 
         if ($("input[id='mode']:checked").val() == "rr") {
-            
-                simulation = new roundRobin(Process);
-                simulation.execute();
-            
+
+            simulation = new roundRobin(Process);
+            simulation.execute();
+
         } else if ($("input[id='mode']:checked").val() == "fcfs") {
             simulation = new FCFS(Process);
             simulation.execute();
@@ -942,13 +979,7 @@ function displaySummary(instance) {
 
 }
 //Asset
-function findAndRemove(array, property, value) {
-    for (var key in array) {
-        if (array[key][property] == value) {
-            array.splice(key, 1);
-        }
-    }
-}
+
 
 function findWithAttr(array, attr, value) {
     for (var i = 0; i < array.length; i += 1) {
