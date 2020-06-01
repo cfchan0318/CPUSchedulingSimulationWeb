@@ -1066,7 +1066,7 @@ function drawReadyQueueForCertainTime(ready_queue, time) {
 function drawLogs(logs, time) {
     try {
         var bar = "";
-        for (var t = 0; t < time; t++) {
+        for (var t = 0; t <= time; t++) {
             for (var i = 0; i < logs[t].length; i++) {
                 bar += "<div class='row'>" + logs[t][i] + "</div>"
             }
