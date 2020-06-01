@@ -1149,3 +1149,30 @@ function sortByPropertyRevese(property) {
         return 0;
     }
 }
+
+function createCookie() {
+    var expires;
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (5 * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toGMTString();
+    }
+    else {
+        expires = "";
+    }
+    document.cookie = "processList=" + Process + expires + "; path=/";
+}
+
+function getCookie() {
+    if (document.cookie.length > 0) {
+        c_start = document.cookie.indexOf("processList" + "=");
+        if (c_start != -1) {
+            c_start = c_start + "processList" + 1;
+            c_end = document.cookie.indexOf(";", c_start);
+            if (c_end == -1) {
+                c_end = document.cookie.length;
+            }
+            Process = unescape(document.cookie.substring(c_start, c_end));
+        }
+    }
+}
